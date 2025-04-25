@@ -111,11 +111,7 @@ CREATE TABLE Rating (
     id INT PRIMARY KEY AUTO_INCREMENT,
     rating INT CHECK (rating >= 1 AND rating <= 5) NOT NULL,
     comment VARCHAR(255),
-    customer_id INT NOT NULL,
-    restaurant_id INT NOT NULL,
     cart_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
-    FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id),
     FOREIGN KEY (cart_id) REFERENCES Cart(id)
 );
