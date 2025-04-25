@@ -5,8 +5,7 @@ USE CS202;
 CREATE TABLE User (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     user_name VARCHAR(64) NOT NULL UNIQUE,
-    password VARCHAR(64) NOT NULL,
-    registration_date DATE NOT NULL
+    password VARCHAR(64) NOT NULL
 );
 
 -- CUSTOMER
@@ -15,20 +14,28 @@ CREATE TABLE Customer (
     FOREIGN KEY (customer_id) REFERENCES User(user_id)
 );
 
+CREATE TABLE Restaurant_Manager (
+     manager_id INT PRIMARY KEY,
+    FOREIGN KEY (manager_id) REFERENCES User(user_id)
+);
+
+
+
 -- RESTAURANT
 CREATE TABLE Restaurant (
     restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
     restaurant_name VARCHAR(64) NOT NULL,
     cuisine_type ENUM('Indian', 'Asian', 'European', 'American', 'African', 'Turkish'),
     manager_id INT NOT NULL,
-    city VARCHAR(64) NOT NULL,
+    address_id INT NOT NULL,
+    FOREIGN KEY (address_id) REFERENCES Address(address_id),
     FOREIGN KEY (manager_id) REFERENCES User(user_id)
 );
 
 -- ADDRESS (bir kullanıcı birden fazla adres sahibi olabilir)
 CREATE TABLE Address (
     address_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    user_id INT NOT NULL, -- Restaurant adresi eklerken user_id olarak restaurant manager girilecek
     address_name VARCHAR(64),
     address VARCHAR(255) NOT NULL,
     city VARCHAR(64) NOT NULL,
@@ -39,7 +46,7 @@ CREATE TABLE Address (
 CREATE TABLE Phone_Number (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
+    phone_number CHAR(20) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
@@ -64,11 +71,17 @@ CREATE TABLE Discount (
     FOREIGN KEY (menu_item_id) REFERENCES Menu_Item(id)
 );
 
+CREATE TABLE Keyword(
+    keyword_id INT PRIMARY KEY AUTO_INCREMENT,
+    keyword VARCHAR(20)
+);
+
 -- KEYWORDS FOR RESTAURANTS
 CREATE TABLE Restaurant_Keyword (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    keyword_id INT,
     restaurant_id INT,
-    keyword VARCHAR(64),
+    PRIMARY KEY (keyword_id, restaurant_id),
+    FOREIGN KEY (keyword_id) REFERENCES Keyword(keyword_id),
     FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id)
 );
 
@@ -77,8 +90,8 @@ CREATE TABLE Cart (
     id INT PRIMARY KEY AUTO_INCREMENT,
     customer_id INT NOT NULL,
     restaurant_id INT NOT NULL,
-    status ENUM('preparing', 'sent', 'accepted') NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('waiting','accepted') NOT NULL,
+    order_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
     FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id)
 );
