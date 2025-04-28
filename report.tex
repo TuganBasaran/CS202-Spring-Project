@@ -1,0 +1,332 @@
+\documentclass{article}
+\usepackage[a4paper, total={6in, 9in}]{geometry}
+\usepackage{amsmath}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\usepackage{float}
+\usepackage{verbatim} 
+\usepackage{etoolbox}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{pgfplots}
+\usepackage{hyperref}
+\usepackage{tocloft}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={CS202 Project Report},
+    pdfpagemode=FullScreen,
+}
+
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1}}{}{}
+}
+\makeatother
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  commentstyle=\color{green!50!black},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  numberstyle=\tiny\color{gray},
+  numbers=left,
+  showstringspaces=false,
+}
+
+\title{\includegraphics[scale=0.65]{images/ozu.png}\\
+\textbf{CS202}}
+\subtitle{Project1 #4}
+\date{Spring 2024}
+%\author{Laboratory 1}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{center}
+
+% Top 
+\includegraphics[width=0.55\textwidth]{ozu.png}~\\[2cm]
+
+% Title
+\HRule \\[0.4cm]
+{ \LARGE 
+  \textbf{Project Report for CS202 }\\[0.4cm]
+  \emph{Database Project - Food Ordering System}\\[0.4cm]
+}
+\HRule \\[1.5cm]
+
+% Author
+{ \large
+  Tugan Başaran, Hidayet Eren Uludağ, Altay Ege Gülkıran  \\[0.1cm]
+  S033995, S034534, S028467 \\[0.1cm]
+  \texttt{tugan.basaran@ozu.edu.tr, hidayet.uludag@ozu.edu.tr, ege.gulkiran@ozu.edu.tr}
+  
+}
+
+\vfill
+
+% Bottom
+{\large \today}
+ 
+\end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Group Information}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Name} & \textbf{ID} & \textbf{Email} \\
+\hline
+Tugan Başaran & S033995 & tugan.basaran@ozu.edu.tr \\
+\hline
+Hidayet Eren Uludağ & S034534 & hidayet.uludag@ozu.edu.tr \\
+\hline
+Altay Ege Gülkıran & S028467 & ege.gulkiran@ozu.edu.tr \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Introduction}
+This report outlines the database design of an online food ordering and delivery system using MySQL. The system facilitates various operations like ordering, leaving comments, showing food prices, pictures, etc. This report explains in detail the design process, entities, and relations used for the food ordering platform.
+
+The system is designed to serve multiple stakeholders including customers, restaurant managers, and food service operators. It allows customers to browse restaurants, view menus, place orders, and provide feedback. Restaurant managers can manage their menu items, view orders, and maintain their restaurant profiles.
+
+\section{ER Diagram}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.25]{CS.202_Project_ER.drawio (1).png}
+\end{center}
+\caption{ER Diagram}
+\label{ER Diagram}
+\end{figure}
+
+Figure \ref{ER Diagram} shows the essential entities and their relationships within our food ordering system. The diagram illustrates how users, restaurants, menu items, orders, and ratings are connected, providing a comprehensive view of the system's data structure.
+
+\section{Functional Dependencies}
+\begin{longtable}{|>{\bfseries}m{4cm}|m{10cm}|}
+\hline
+\textbf{Entity} & \textbf{Attributes} \\
+\hline
+User & user\_id → user\_name, password \\
+\hline
+Phone Number & id → user\_id, phone\_number \\
+\hline
+Address & address\_id → user\_id, address\_name, address, city \\
+\hline
+Customer & customer\_id → (inherits attributes from User) \\
+\hline
+Restaurant Manager & manager\_id → (inherits attributes from User) \\
+\hline
+Cart & id → customer\_id, restaurant\_id, status, order\_time \\
+\hline
+Rating & id → rating, comment, cart\_id, created\_at \\
+\hline
+Restaurant & restaurant\_id → restaurant\_name, cuisine\_type, manager\_id, address\_id \\
+\hline
+Keyword & keyword\_id → keyword \\
+\hline
+Menu Item & id → name, image, description, price, restaurant\_id \\
+\hline
+Discount & id → menu\_item\_id, discount\_rate, start\_date, end\_date \\
+\hline
+Contains & id → cart\_id, menu\_item\_id, quantity \\
+\hline
+Restaurant\_Keyword & (keyword\_id, restaurant\_id) → (composite key with no dependencies) \\
+\hline
+\end{longtable}
+
+\section{Design Decisions and Constraints}
+
+\subsection{Entity and Relationship Explanations}
+
+\subsubsection{User Entity}
+The User entity serves as the base entity for both customers and restaurant managers through an ISA (Is-A) relationship. This design decision allows sharing common attributes like user identification, username, and password while allowing specialized entities to have their own unique attributes and relationships.
+
+\subsubsection{Customer and Restaurant Manager Entities}
+These entities inherit from the User entity using the ISA relationship. This approach provides cleaner separation of concerns while maintaining the database's referential integrity, as both types of users share the same authentication system but perform different roles within the application.
+
+\subsubsection{Restaurant Entity}
+Each restaurant is managed by exactly one restaurant manager (many-to-one relationship) but a restaurant manager can manage multiple restaurants. Restaurants also have a location represented by the Address entity and offer a collection of menu items.
+
+\subsubsection{Menu Item Entity}
+Menu items belong to specific restaurants and can be included in multiple customer carts. Each menu item has descriptive attributes including name, image path, description, and price.
+
+\subsubsection{Cart Entity}
+The Cart entity represents an order in the system. It maintains a one-to-many relationship with the Contains entity, which links menu items to carts with quantity information. Carts also record the status of the order (waiting or accepted) and the order timestamp.
+
+\subsubsection{Rating Entity}
+Ratings are linked to specific carts, allowing customers to provide feedback on their orders. This design ensures that only customers who have placed an order can leave ratings for a restaurant.
+
+\subsubsection{Keywords}
+Restaurants can be associated with multiple keywords through the Restaurant\_Keyword junction table, facilitating categorization and search functionality.
+
+\subsection{Constraints}
+
+\subsubsection{Primary Key Constraints}
+Every entity in the database has a unique identifier:
+\begin{itemize}
+    \item User: user\_id (auto\_increment)
+    \item Restaurant: restaurant\_id (auto\_increment)
+    \item Address: address\_id (auto\_increment)
+    \item Phone\_Number: id (auto\_increment)
+    \item Menu\_Item: id (auto\_increment)
+    \item Cart: id (auto\_increment)
+    \item Rating: id (auto\_increment)
+    \item Keyword: keyword\_id (auto\_increment)
+    \item Discount: id (auto\_increment)
+    \item Contains: id (auto\_increment)
+    \item Restaurant\_Keyword: composite primary key (keyword\_id, restaurant\_id)
+\end{itemize}
+
+\subsubsection{Foreign Key Constraints}
+Foreign key constraints ensure referential integrity across the database:
+\begin{itemize}
+    \item Customer.customer\_id references User.user\_id
+    \item Restaurant\_Manager.manager\_id references User.user\_id
+    \item Restaurant.manager\_id references User.user\_id
+    \item Restaurant.address\_id references Address.address\_id
+    \item Address.user\_id references User.user\_id
+    \item Phone\_Number.user\_id references User.user\_id
+    \item Menu\_Item.restaurant\_id references Restaurant.restaurant\_id
+    \item Discount.menu\_item\_id references Menu\_Item.id
+    \item Restaurant\_Keyword.keyword\_id references Keyword.keyword\_id
+    \item Restaurant\_Keyword.restaurant\_id references Restaurant.restaurant\_id
+    \item Cart.customer\_id references Customer.customer\_id
+    \item Cart.restaurant\_id references Restaurant.restaurant\_id
+    \item Contains.cart\_id references Cart.id
+    \item Contains.menu\_item\_id references Menu\_Item.id
+    \item Rating.cart\_id references Cart.id
+\end{itemize}
+
+\subsubsection{Unique Constraints}
+\begin{itemize}
+    \item User.user\_name is unique to prevent duplicate usernames
+    \item The composite key (keyword\_id, restaurant\_id) in Restaurant\_Keyword prevents duplicate keyword assignments
+\end{itemize}
+
+\subsubsection{Not Null Constraints}
+Essential attributes that must have values include:
+\begin{itemize}
+    \item User: user\_name, password
+    \item Restaurant: restaurant\_name, manager\_id, address\_id
+    \item Address: user\_id, address, city
+    \item Phone\_Number: user\_id, phone\_number
+    \item Menu\_Item: name, image, price, restaurant\_id
+    \item Discount: menu\_item\_id, discount\_rate
+    \item Cart: customer\_id, restaurant\_id, status
+    \item Contains: cart\_id, menu\_item\_id, quantity
+    \item Rating: rating, cart\_id
+\end{itemize}
+
+\subsubsection{Check Constraints}
+\begin{itemize}
+    \item Rating.rating must be between 1 and 5 (inclusive)
+    \item Cart.status is restricted to enum values ('waiting', 'accepted')
+    \item Restaurant.cuisine\_type is restricted to enum values ('Indian', 'Asian', 'European', 'American', 'African', 'Turkish')
+\end{itemize}
+
+\subsubsection{Default Values}
+\begin{itemize}
+    \item Cart.order\_time defaults to CURRENT\_TIMESTAMP
+    \item Rating.created\_at defaults to CURRENT\_TIMESTAMP
+\end{itemize}
+
+\section{Appendices}
+
+\subsection{DDL SQL Code Summary}
+
+The Data Definition Language (DDL) SQL code establishes the structure of our database by defining tables, constraints, and relationships. Key components include:
+
+\begin{lstlisting}[language=SQL, caption=Database Creation]
+CREATE DATABASE IF NOT EXISTS CS202;
+USE CS202;
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL, caption=User Table Definition]
+CREATE TABLE IF NOT EXISTS User(
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_name VARCHAR(64) NOT NULL UNIQUE,
+    password VARCHAR(64) NOT NULL
+);
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL, caption=Customer and Restaurant Manager Tables]
+CREATE TABLE IF NOT EXISTS Customer (
+    customer_id INT PRIMARY KEY,
+    FOREIGN KEY (customer_id) REFERENCES User(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS Restaurant_Manager (
+     manager_id INT PRIMARY KEY,
+    FOREIGN KEY (manager_id) REFERENCES User(user_id)
+);
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL, caption=Restaurant Table]
+CREATE TABLE IF NOT EXISTS Restaurant (
+    restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
+    restaurant_name VARCHAR(64) NOT NULL,
+    cuisine_type ENUM('Indian', 'Asian', 'European', 'American', 'African', 'Turkish'),
+    manager_id INT NOT NULL,
+    address_id INT NOT NULL,
+    FOREIGN KEY (address_id) REFERENCES Address(address_id),
+    FOREIGN KEY (manager_id) REFERENCES User(user_id)
+);
+\end{lstlisting}
+
+The complete DDL SQL code defines all tables and relationships for the food ordering system, implementing the constraints and design decisions discussed earlier.
+
+\subsection{DML SQL Code Summary}
+
+The Data Manipulation Language (DML) SQL code populates our database with sample data for testing and demonstration purposes. Key insertions include:
+
+\begin{lstlisting}[language=SQL, caption=User Data Insertion]
+INSERT INTO User (user_id, user_name, password) VALUES
+(1, 'ozgur.aydin', 'pass123'),
+(2, 'melis.kaya', 'meliskaya456'),
+(3, 'emre.ozan', 'ozanemre789'),
+(10, 'customer1', 'cust1pass'),
+(11, 'customer2', 'cust2pass'),
+(12, 'customer3', 'cust3pass'),
+(13, 'customer4', 'cust4pass'),
+(14, 'customer5', 'cust5pass');
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL, caption=Restaurant Data Insertion]
+INSERT INTO Restaurant (restaurant_id, restaurant_name, cuisine_type, manager_id, address_id) VALUES
+(1, 'Sofra Anadolu', 'Turkish', 1, 1),
+(2, 'Spice Route', 'Indian', 2, 2),
+(3, 'Burger District', 'American', 3, 3),
+(4, 'Mamma Mia', 'European', 1, 4),
+(5, 'Wok Wok', 'Asian', 2, 5);
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL, caption=Menu Item Data Insertion (Sample)]
+INSERT INTO Menu_Item (id, name, image, description, price, restaurant_id) VALUES
+(1, 'Grilled Chicken Shawarma', 'image1.jpg', 'Tender chicken breast wrapped in spices and grilled to perfection.', 107.86, 1),
+(2, 'Spaghetti Carbonara', 'image2.jpg', 'Classic Italian pasta with pancetta, egg, and parmesan.', 91.16, 1),
+-- Additional menu items omitted for brevity
+\end{lstlisting}
+
+The DML code also includes sample data for ratings, customer orders (carts), order items (contains), and other entities, providing a comprehensive dataset for testing all aspects of the food ordering system.
+
+\begin{thebibliography}{99}
+\bibitem{mysql_docs} MySQL Documentation, \url{https://dev.mysql.com/doc/}
+\bibitem{db_design} Database Design Principles, \url{https://www.oracle.com/database/technologies/appdev/sql/}
+\end{thebibliography}
+
+\end{document}

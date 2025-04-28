@@ -2,27 +2,25 @@ CREATE DATABASE IF NOT EXISTS CS202;
 USE CS202;
 
 -- USERS (hem müşteri hem restoran yöneticisi olabilir)
-CREATE TABLE User (
+CREATE TABLE IF NOT EXISTS User(
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     user_name VARCHAR(64) NOT NULL UNIQUE,
     password VARCHAR(64) NOT NULL
 );
 
 -- CUSTOMER
-CREATE TABLE Customer (
+CREATE TABLE IF NOT EXISTS Customer (
     customer_id INT PRIMARY KEY,
     FOREIGN KEY (customer_id) REFERENCES User(user_id)
 );
 
-CREATE TABLE Restaurant_Manager (
+CREATE TABLE IF NOT EXISTS Restaurant_Manager (
      manager_id INT PRIMARY KEY,
     FOREIGN KEY (manager_id) REFERENCES User(user_id)
 );
 
-
-
 -- RESTAURANT
-CREATE TABLE Restaurant (
+CREATE TABLE IF NOT EXISTS Restaurant (
     restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
     restaurant_name VARCHAR(64) NOT NULL,
     cuisine_type ENUM('Indian', 'Asian', 'European', 'American', 'African', 'Turkish'),
@@ -33,7 +31,7 @@ CREATE TABLE Restaurant (
 );
 
 -- ADDRESS (bir kullanıcı birden fazla adres sahibi olabilir)
-CREATE TABLE Address (
+CREATE TABLE IF NOT EXISTS Address (
     address_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL, -- Restaurant adresi eklerken user_id olarak restaurant manager girilecek
     address_name VARCHAR(64),
@@ -43,7 +41,7 @@ CREATE TABLE Address (
 );
 
 -- PHONE NUMBER
-CREATE TABLE Phone_Number (
+CREATE TABLE IF NOT EXISTS Phone_Number (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     phone_number CHAR(20) NOT NULL,
@@ -51,7 +49,7 @@ CREATE TABLE Phone_Number (
 );
 
 -- MENU ITEM
-CREATE TABLE Menu_Item (
+CREATE TABLE IF NOT EXISTS Menu_Item (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     image VARCHAR(255) NOT NULL,
@@ -62,7 +60,7 @@ CREATE TABLE Menu_Item (
 );
 
 -- OPTIONAL DISCOUNT TABLE
-CREATE TABLE Discount (
+CREATE TABLE IF NOT EXISTS Discount (
     id INT PRIMARY KEY AUTO_INCREMENT,
     menu_item_id INT NOT NULL,
     discount_rate DOUBLE NOT NULL,
@@ -71,13 +69,13 @@ CREATE TABLE Discount (
     FOREIGN KEY (menu_item_id) REFERENCES Menu_Item(id)
 );
 
-CREATE TABLE Keyword(
+CREATE TABLE IF NOT EXISTS Keyword(
     keyword_id INT PRIMARY KEY AUTO_INCREMENT,
     keyword VARCHAR(20)
 );
 
 -- KEYWORDS FOR RESTAURANTS
-CREATE TABLE Restaurant_Keyword (
+CREATE TABLE IF NOT EXISTS Restaurant_Keyword (
     keyword_id INT,
     restaurant_id INT,
     PRIMARY KEY (keyword_id, restaurant_id),
@@ -86,7 +84,7 @@ CREATE TABLE Restaurant_Keyword (
 );
 
 -- CART (ORDER)
-CREATE TABLE Cart (
+CREATE TABLE IF NOT EXISTS Cart (
     id INT PRIMARY KEY AUTO_INCREMENT,
     customer_id INT NOT NULL,
     restaurant_id INT NOT NULL,
@@ -97,7 +95,7 @@ CREATE TABLE Cart (
 );
 
 -- CART ITEM
-CREATE TABLE Contains (
+CREATE TABLE IF NOT EXISTS Contains (
     id INT PRIMARY KEY AUTO_INCREMENT,
     cart_id INT NOT NULL,
     menu_item_id INT NOT NULL,
@@ -107,7 +105,7 @@ CREATE TABLE Contains (
 );
 
 -- RATINGS
-CREATE TABLE Rating (
+CREATE TABLE IF NOT EXISTS Rating (
     id INT PRIMARY KEY AUTO_INCREMENT,
     rating INT CHECK (rating >= 1 AND rating <= 5) NOT NULL,
     comment VARCHAR(255),
