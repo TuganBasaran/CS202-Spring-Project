@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Çalışan Girişi</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/main.css') }}"
+    />
+
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>Çalışan Girişi</h2>
+      {% if error %}
+      <div class="error-message">{{ error }}</div>
+      {% endif %}
+      <form method="post" action="/login">
+        <label for="username">Kullanıcı Adı</label>
+        <input type="text" id="username" name="username" required />
+
+        <label for="password">Şifre</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit">Giriş Yap</button>
+      </form>
+    </div>
+  </body>
+</html>
