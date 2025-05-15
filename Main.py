@@ -6,8 +6,8 @@ connector = Connector('root', 'password', 'CS202')
 customer_service = Customer_Service(connector)
 manager_service = Manager_Service(connector)
 
-result = manager_service.login(user_name= 'ozgur.aydin', password= 'pass123')
+login_boolean = manager_service.login(user_name= 'ozgur.aydin', password= 'pass123')
+result = manager_service.get_all_restaurants_by_manager()
+keyword = manager_service.create_keyword(keyword='sustainable')
 
-result = customer_service.search_restaurants(name= 'Burger District')
-
-print(result)
+print(keyword)

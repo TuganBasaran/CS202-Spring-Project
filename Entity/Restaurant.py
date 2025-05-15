@@ -5,3 +5,6 @@ class Restaurant():
         self.cuisine_type = cuisine_type 
         self.manager_id = manager_id
         self.address_id = address_id 
+
+    def __repr__(self):
+        return f"Restaurant(id={self.restaurant_id}, name={self.restaurant_name}, cuisine_type={self.cuisine_type}, manager_id= {self.manager_id}, address_id= {self.address_id})"
