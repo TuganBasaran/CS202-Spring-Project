@@ -62,16 +62,24 @@ CREATE TABLE IF NOT EXISTS Menu_Item (
 -- OPTIONAL DISCOUNT TABLE
 CREATE TABLE IF NOT EXISTS Discount (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    menu_item_id INT NOT NULL,
     discount_rate DOUBLE NOT NULL,
     start_date DATE,
-    end_date DATE,
-    FOREIGN KEY (menu_item_id) REFERENCES Menu_Item(id)
+    end_date DATE
+);
+
+CREATE TABLE Has_Discount (
+    menu_item_id INT,
+    discount_id INT,
+    PRIMARY KEY (menu_item_id, discount_id),
+    FOREIGN KEY (menu_item_id) REFERENCES Menu_Item(id),
+    FOREIGN KEY (discount_id) REFERENCES Discount(id)
 );
 
 CREATE TABLE IF NOT EXISTS Keyword(
     keyword_id INT PRIMARY KEY AUTO_INCREMENT,
-    keyword VARCHAR(20)
+    keyword VARCHAR(20),
+    manager_id INT,
+    FOREIGN KEY (manager_id) REFERENCES Restaurant_Manager(manager_id)
 );
 
 -- KEYWORDS FOR RESTAURANTS
@@ -88,7 +96,7 @@ CREATE TABLE IF NOT EXISTS Cart (
     id INT PRIMARY KEY AUTO_INCREMENT,
     customer_id INT NOT NULL,
     restaurant_id INT NOT NULL,
-    status ENUM('waiting','accepted') NOT NULL,
+    status ENUM('waiting','accepted','delivered') NOT NULL,
     order_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
     FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id)
@@ -96,10 +104,10 @@ CREATE TABLE IF NOT EXISTS Cart (
 
 -- CART ITEM
 CREATE TABLE IF NOT EXISTS Contains (
-    id INT PRIMARY KEY AUTO_INCREMENT,
     cart_id INT NOT NULL,
     menu_item_id INT NOT NULL,
     quantity INT NOT NULL,
+    PRIMARY KEY (cart_id, menu_item_id),
     FOREIGN KEY (cart_id) REFERENCES Cart(id),
     FOREIGN KEY (menu_item_id) REFERENCES Menu_Item(id)
 );
@@ -110,6 +118,18 @@ CREATE TABLE IF NOT EXISTS Rating (
     rating INT CHECK (rating >= 1 AND rating <= 5) NOT NULL,
     comment VARCHAR(255),
     cart_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    restaurant_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (cart_id) REFERENCES Cart(id)
+    FOREIGN KEY (cart_id) REFERENCES Cart(id),
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
+    FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id)
+);
+
+CREATE TABLE RestaurantKeyword (
+    restaurant_id INT,
+    keyword_id INT,
+    PRIMARY KEY (restaurant_id, keyword_id),
+    FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id),
+    FOREIGN KEY (keyword_id) REFERENCES Keyword(keyword_id)
 );
