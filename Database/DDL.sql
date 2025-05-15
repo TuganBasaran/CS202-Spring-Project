@@ -19,17 +19,6 @@ CREATE TABLE IF NOT EXISTS Restaurant_Manager (
     FOREIGN KEY (manager_id) REFERENCES User(user_id)
 );
 
--- RESTAURANT
-CREATE TABLE IF NOT EXISTS Restaurant (
-    restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
-    restaurant_name VARCHAR(64) NOT NULL,
-    cuisine_type ENUM('Indian', 'Asian', 'European', 'American', 'African', 'Turkish'),
-    manager_id INT NOT NULL,
-    address_id INT NOT NULL,
-    FOREIGN KEY (address_id) REFERENCES Address(address_id),
-    FOREIGN KEY (manager_id) REFERENCES User(user_id)
-);
-
 -- ADDRESS (bir kullanıcı birden fazla adres sahibi olabilir)
 CREATE TABLE IF NOT EXISTS Address (
     address_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -46,6 +35,17 @@ CREATE TABLE IF NOT EXISTS Phone_Number (
     user_id INT NOT NULL,
     phone_number CHAR(20) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
+
+-- RESTAURANT
+CREATE TABLE IF NOT EXISTS Restaurant (
+    restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
+    restaurant_name VARCHAR(64) NOT NULL,
+    cuisine_type ENUM('Indian', 'Asian', 'European', 'American', 'African', 'Turkish'),
+    manager_id INT NOT NULL,
+    address_id INT NOT NULL,
+    FOREIGN KEY (address_id) REFERENCES Address(address_id),
+    FOREIGN KEY (manager_id) REFERENCES User(user_id)
 );
 
 -- MENU ITEM
@@ -124,12 +124,4 @@ CREATE TABLE IF NOT EXISTS Rating (
     FOREIGN KEY (cart_id) REFERENCES Cart(id),
     FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
     FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id)
-);
-
-CREATE TABLE RestaurantKeyword (
-    restaurant_id INT,
-    keyword_id INT,
-    PRIMARY KEY (restaurant_id, keyword_id),
-    FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id),
-    FOREIGN KEY (keyword_id) REFERENCES Keyword(keyword_id)
 );
