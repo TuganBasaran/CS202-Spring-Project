@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manager Dashboard</title>
+  </head>
+  <body>
+    <h2>Hoşgeldin, {{ username }}!</h2>
+    <h3>Restoranlarınız:</h3>
+    {% if restaurants %}
+    <ul>
+      {% for restaurant in restaurants %}
+      <li>
+        {{ restaurant.restaurant_name }} - {{ restaurant.cuisine_type }}<br />
+        Adres ID: {{ restaurant.address_id }}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>Hiç restoranınız yok.</p>
+    {% endif %}
+  </body>
+</html>

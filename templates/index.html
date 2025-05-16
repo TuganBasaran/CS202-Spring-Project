@@ -8,7 +8,6 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/main.css') }}"
     />
-
   </head>
   <body>
     <div class="login-container">
@@ -22,6 +21,12 @@
 
         <label for="password">Şifre</label>
         <input type="password" id="password" name="password" required />
+
+        <label for="role">Giriş Türü</label>
+        <select id="role" name="role" required>
+          <option value="customer">Customer</option>
+          <option value="manager">Manager</option>
+        </select>
 
         <button type="submit">Giriş Yap</button>
       </form>
