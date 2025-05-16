@@ -2,61 +2,88 @@ from Entity.User.Restaurant_Manager import Restaurant_Manager
 from Entity.Keyword import Keyword
 from Entity.Restaurant import Restaurant
 from Entity.Menu_Item import Menu_Item
+from Entity.Address import Address
+
+# CREATE TABLE IF NOT EXISTS Restaurant (
+#     restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
+#     restaurant_name VARCHAR(64) NOT NULL,
+#     cuisine_type ENUM('Indian', 'Asian', 'European', 'American', 'African', 'Turkish'),
+#     manager_id INT NOT NULL,
+#     address_id INT NOT NULL,
+#     FOREIGN KEY (address_id) REFERENCES Address(address_id),
+#     FOREIGN KEY (manager_id) REFERENCES User(user_id)
+# );
+
+
+# CREATE TABLE IF NOT EXISTS Address (
+#     address_id INT PRIMARY KEY AUTO_INCREMENT,
+#     user_id INT NOT NULL, -- Restaurant adresi eklerken user_id olarak restaurant manager girilecek
+#     address_name VARCHAR(64),
+#     address VARCHAR(255) NOT NULL,
+#     city VARCHAR(64) NOT NULL,
+#     FOREIGN KEY (user_id) REFERENCES User(user_id)
+# );
 class Manager_Service(): 
     def __init__(self, connection):
         self.connection = connection 
         self.manager = None
 
     def login(self, user_name, password): 
-        query = f"SELECT user_id FROM User U JOIN Restaurant_Manager M ON M.manager_id = U.user_id WHERE user_name= '{user_name}' and password= '{password}'"
-        result = self.connection.execute_query(query)
-        if result is not None: 
-            id = result[0][0]
-            self.manager = Restaurant_Manager(id, user_name, password)
-            return result
-        return 0
-    
+        try: 
+            query = f"SELECT user_id FROM User U JOIN Restaurant_Manager M ON M.manager_id = U.user_id WHERE user_name= '{user_name}' and password= '{password}'"
+            result = self.connection.execute_query(query)
+            if result is not None: 
+                id = result[0][0]
+                self.manager = Restaurant_Manager(id, user_name, password)
+                return result
+            return 0
+        except Exception: 
+            print(-1)
+
     def get_all_restaurants_by_manager(self): 
-        query= "SELECT * FROM Restaurant Where manager_id= {}".format(self.manager.user_id)
+        query= "SELECT * FROM Restaurant R JOIN Address A ON R.address_id = A.address_id Where manager_id= {}".format(self.manager.user_id)
         result = self.connection.execute_query(query)
         restaurants = []
 
         for row in result: 
-            restaurant = Restaurant(row[0], row[1], row[2], row[3], row[4])
+            # 4'ten sonra address
+            address = Address(row[5], row[6], row[7], row[8], row[9])
+            restaurant = Restaurant(row[0], row[1], row[2], self.manager.user_name, address)
             restaurants.append(restaurant)
 
         return restaurants
     
-    def create_keyword(self, keyword):
-        manager_id = self.manager.user_id
-        query = "INSERT INTO Keyword (keyword, manager_id) VALUES ('{}', {})".format(keyword, manager_id)
+    def get_a_restaurant(self, restaurant_id): 
+        query= "SELECT * FROM Restaurant R JOIN Address A ON R.address_id = A.address_id WHERE R.restaurant_id= {}".format(restaurant_id)
+
         result = self.connection.execute_query(query)
-        return result 
+         
+        if result is not None: 
+            for row in result: 
+                address = Address(row[5], row[6], row[7], row[8], row[9])
+                restaurant = Restaurant(row[0], row[1], row[2], self.manager.user_name, address)
 
-    def set_keyword(self, restaurant_name, keyword):
-        # 1. Keyword var mı kontrol et, yoksa ekle
-        query_keyword = "SELECT keyword_id FROM Keyword WHERE keyword = '{}'".format(keyword)
-        result_keyword = self.connection.execute_query(query_keyword)
-        if result_keyword and len(result_keyword) > 0:
-            keyword_id = result_keyword[0][0]
-        else:
-            insert_keyword = "INSERT INTO Keyword (keyword, manager_id) VALUES ('{}', {})".format(keyword, self.manager.user_id)
-            self.connection.execute_query(insert_keyword)
-            # Yeni eklenen keyword_id'yi al
-            result_keyword = self.connection.execute_query(query_keyword)
-            keyword_id = result_keyword[0][0]
+            return restaurant 
+        
+        else: 
+            return -1 
+        
+    def get_restaurant_menu_items(self, restaurant_id): 
+        query= "Select M.id, M.name, M.image, M.description, M.price, R.restaurant_id FROM Restaurant R JOIN Menu_Item M ON R.restaurant_id = M.restaurant_id WHERE R.restaurant_id = {}".format(restaurant_id)
 
-        # 2. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 3. Restaurant_Keyword ilişkisini ekle (varsa hata verme)
-        insert_relation = "INSERT INTO Restaurant_Keyword (keyword_id, restaurant_id) VALUES ({}, {})".format(keyword_id, restaurant_id)
-        self.connection.execute_query(insert_relation)
-        return 1
+        result = self.connection.execute_query(query)
+        menu_items = []
+        if (len(result) > 0 and result is not None): 
+            for row in result:
+                menu_item = Menu_Item(row[0], row[1], row[2], row[3], row[4], row[5])
+                menu_items.append(menu_item)
+            
+            return menu_items
+        
+        return -1    
+    
+    
+    #TODO CREATE KEYWORD - SET KEYWORD
     
     def create_menu_item(self, name, image, description, price, restaurant_name):
         # 1. Restaurant id'yi bul
@@ -82,24 +109,6 @@ class Manager_Service():
 
         return keywords
     
-    def get_all_menu_items(self, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. Menu itemleri al
-        query_menu_items = "SELECT * FROM Menu_Item WHERE restaurant_id = {}".format(restaurant_id)
-        result_menu_items = self.connection.execute_query(query_menu_items)
-        menu_items = []
-
-        for row in result_menu_items: 
-            menu_item = Menu_Item(row[0], row[1], row[2], row[3], row[4])
-            menu_items.append(menu_item)
-
-        return menu_items
     
     def create_discount(self, discount_rate, restaurant_name):
         # 1. Restaurant id'yi bul
@@ -178,8 +187,6 @@ class Manager_Service():
         return ratings
     
     def get_total_revenue(self, restaurant_name):
-        # total_price Cart tablosunda yok, bu yüzden fonksiyon implement edilmedi.
-        raise NotImplementedError("total_price Cart tablosunda yok")
         # 1. Restaurant id'yi bul
         query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
         result_restaurant = self.connection.execute_query(query_restaurant)

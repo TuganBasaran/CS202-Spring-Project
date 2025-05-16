@@ -1,23 +1,36 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Manager Dashboard</title>
   </head>
   <body>
-    <h2>Hoşgeldin, {{ username }}!</h2>
-    <h3>Restoranlarınız:</h3>
+    <nav style="text-align: right; margin: 10px">
+      <form
+        method="post"
+        action="{{ url_for('logout') }}"
+        style="display: inline"
+      >
+        <button type="submit">Log Out</button>
+      </form>
+    </nav>
+    <h2>Welcome, {{ username }}!</h2>
+    <h3>Your Restaurants:</h3>
     {% if restaurants %}
     <ul>
       {% for restaurant in restaurants %}
       <li>
-        {{ restaurant.restaurant_name }} - {{ restaurant.cuisine_type }}<br />
-        Adres ID: {{ restaurant.address_id }}
+        <a
+          href="{{ url_for('restaurant_page', restaurant_id=restaurant.restaurant_id) }}"
+        >
+          {{ restaurant.restaurant_name }} - {{ restaurant.cuisine_type }} </a
+        ><br />
+        Address: {{ restaurant.address.address}}
       </li>
       {% endfor %}
     </ul>
     {% else %}
-    <p>Hiç restoranınız yok.</p>
+    <p>You have no restaurants.</p>
     {% endif %}
   </body>
 </html>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Çalışan Girişi</title>
+    <title>Login</title>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/main.css') }}"
@@ -11,24 +11,24 @@
   </head>
   <body>
     <div class="login-container">
-      <h2>Çalışan Girişi</h2>
+      <h2>Login</h2>
       {% if error %}
       <div class="error-message">{{ error }}</div>
       {% endif %}
       <form method="post" action="/login">
-        <label for="username">Kullanıcı Adı</label>
+        <label for="username">Username</label>
         <input type="text" id="username" name="username" required />
 
-        <label for="password">Şifre</label>
+        <label for="password">Password</label>
         <input type="password" id="password" name="password" required />
 
-        <label for="role">Giriş Türü</label>
+        <label for="role">Login Type</label>
         <select id="role" name="role" required>
           <option value="customer">Customer</option>
           <option value="manager">Manager</option>
         </select>
 
-        <button type="submit">Giriş Yap</button>
+        <button type="submit">Login</button>
       </form>
     </div>
   </body>

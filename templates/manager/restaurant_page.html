@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Restaurant Details</title>
+  </head>
+  <body>
+    <nav style="text-align: right; margin: 10px">
+      <form
+        method="post"
+        action="{{ url_for('logout') }}"
+        style="display: inline"
+      >
+        <button type="submit">Log Out</button>
+      </form>
+    </nav>
+
+    <section>
+      <h2>{{ restaurant.restaurant_name }}</h2>
+      <p><strong>Cuisine Type:</strong> {{ restaurant.cuisine_type }}</p>
+      <p><strong>Address:</strong> {{ restaurant.address.address }}</p>
+      <p><strong>Manager:</strong> {{ restaurant.manager }}</p>
+      <a href="javascript:history.back()">Go Back</a>
+    </section>
+
+    <br />
+
+    <section id="Menu Item List">
+      <h2>Menu Item List</h2>
+      {% if menu_item_list %}
+      <ul>
+        {% for menu in menu_item_list %}
+        <li>
+          <img src="{{menu.image}}" alt="" />
+          <strong>{{ menu.name }}</strong> - {{ menu.price }} TL<br />
+          {{ menu.description }}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>No menu items.</p>
+      {% endif %}
+    </section>
+  </body>
+</html>
