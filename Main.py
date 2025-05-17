@@ -7,7 +7,7 @@ customer_service = Customer_Service(connector)
 manager_service = Manager_Service(connector)
 
 login_boolean = manager_service.login(user_name= 'ozgur.aydin', password= 'pass123')
-result = manager_service.get_restaurant_menu_items(1)
+result = manager_service.get_restaurant_keywords(1)
 
-
-print(result)
+for row in result: 
+    print(row)

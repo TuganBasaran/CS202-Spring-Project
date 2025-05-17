@@ -3,26 +3,8 @@ from Entity.Keyword import Keyword
 from Entity.Restaurant import Restaurant
 from Entity.Menu_Item import Menu_Item
 from Entity.Address import Address
+from Entity.Rating import Rating
 
-# CREATE TABLE IF NOT EXISTS Restaurant (
-#     restaurant_id INT PRIMARY KEY AUTO_INCREMENT,
-#     restaurant_name VARCHAR(64) NOT NULL,
-#     cuisine_type ENUM('Indian', 'Asian', 'European', 'American', 'African', 'Turkish'),
-#     manager_id INT NOT NULL,
-#     address_id INT NOT NULL,
-#     FOREIGN KEY (address_id) REFERENCES Address(address_id),
-#     FOREIGN KEY (manager_id) REFERENCES User(user_id)
-# );
-
-
-# CREATE TABLE IF NOT EXISTS Address (
-#     address_id INT PRIMARY KEY AUTO_INCREMENT,
-#     user_id INT NOT NULL, -- Restaurant adresi eklerken user_id olarak restaurant manager girilecek
-#     address_name VARCHAR(64),
-#     address VARCHAR(255) NOT NULL,
-#     city VARCHAR(64) NOT NULL,
-#     FOREIGN KEY (user_id) REFERENCES User(user_id)
-# );
 class Manager_Service(): 
     def __init__(self, connection):
         self.connection = connection 
@@ -82,179 +64,175 @@ class Manager_Service():
         
         return -1    
     
-    
-    #TODO CREATE KEYWORD - SET KEYWORD
-    
-    def create_menu_item(self, name, image, description, price, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
+    def get_restaurant_ratings(self, restaurant_id):
+        query = """
+        SELECT 
+            r.id, r.rating, r.comment, c.id, u.user_name, r.restaurant_id, r.created_at,
+            GROUP_CONCAT(m.name SEPARATOR ', ')
+        FROM 
+            Rating r
+        JOIN 
+            Cart c ON r.cart_id = c.id
+        JOIN 
+            User u ON c.customer_id = u.user_id
+        JOIN 
+            Contains cmi ON c.id = cmi.cart_id
+        JOIN 
+            Menu_Item m ON cmi.menu_item_id = m.id
+        WHERE 
+            r.restaurant_id = {}
+        GROUP BY r.id
+        ORDER BY r.created_at DESC
+        LIMIT 10
+    """.format(restaurant_id)
+        results = self.connection.execute_query(query)
+        ratings = []
+        average_rating= 0 
+        if results is not None and len(results) > 0: 
+            for row in results: 
+                # Burada row[7] sipariş edilen yemeklerin listesini içeriyor
+                rating = Rating(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+                ratings.append(rating)
+                average_rating+= rating.rating
+            average_rating = average_rating / len(ratings)
+            return ratings, average_rating
+        else: 
+            return [], 0 # -1 yerine boş liste döndürmek daha uygun
+            # for row in result: 
+                # rating= Rating(row[0], row[1], row[2],)
 
-        # 2. Menu item ekle
-        insert_menu_item = "INSERT INTO Menu_Item (item_name, item_image, item_description, item_price, restaurant_id) VALUES ('{}', '{}', '{}', {}, {})".format(name, image, description, price, restaurant_id)
-        self.connection.execute_query(insert_menu_item)
-        return 1
-    
-    def get_all_keywords(self):
-        query = "SELECT * FROM Keyword WHERE manager_id = {}".format(self.manager.user_id)
+    def get_restaurant_keywords(self, restaurant_id): 
+        query = """
+        SELECT k.keyword_id, k.keyword, k.manager_id
+        FROM Keyword k
+        JOIN Restaurant_Keyword rk ON k.keyword_id = rk.keyword_id
+        WHERE rk.restaurant_id = {}
+        """.format(restaurant_id)
+        
         result = self.connection.execute_query(query)
         keywords = []
-
-        for row in result: 
-            keyword = Keyword(row[0], row[1], row[2])
-            keywords.append(keyword)
-
+        
+        if result is not None and len(result) > 0:
+            for row in result:
+                # row[0] = keyword_id, row[1] = keyword, row[2] = manager_id
+                keyword = Keyword(row[0], row[1], row[2])
+                keywords.append(keyword)
+            return keywords
+        else:
+            return []  # Eğer keyword bulunamazsa boş liste döndür
+    
+    def create_keyword(self, keyword_text):
+        """Create a new keyword and return its ID"""
+        # Check if keyword already exists for this manager
+        check_query = """
+        SELECT keyword_id FROM Keyword 
+        WHERE keyword= {} AND manager_id= {}
+        """.format(keyword_text, self.manager.user_id)
+        result = self.connection.execute_query(check_query)
+        
+        if result and len(result) > 0:
+            # Keyword already exists, return existing ID
+            return result[0][0]
+        
+        # Create new keyword
+        insert_query = """
+        INSERT INTO Keyword (keyword, manager_id) 
+        VALUES ({}, {})
+        """.format(keyword_text, self.manager.user_id)
+        self.connection.execute_query(insert_query)
+        
+        # Get the ID of the inserted keyword
+        get_id_query = "SELECT LAST_INSERT_ID()"
+        result = self.connection.execute_query(get_id_query)
+        return result[0][0]
+    
+    def add_keyword_to_restaurant(self, restaurant_id, keyword_id=None, keyword_text=None):
+        """Add a keyword to a restaurant using either keyword_id or keyword_text"""
+        # If keyword_text is provided, create or get the keyword first
+        if keyword_id is None and keyword_text:
+            keyword_id = self.create_keyword(keyword_text)
+        
+        # Check if the restaurant already has this keyword
+        check_query = """
+        SELECT * FROM Restaurant_Keyword 
+        WHERE restaurant_id = {} AND keyword_id = {}
+        """.format(restaurant_id, keyword_id)
+        result = self.connection.execute_query(check_query)
+        
+        if not result or len(result) == 0:
+            # Add the keyword to the restaurant
+            insert_query = """
+            INSERT INTO Restaurant_Keyword (restaurant_id, keyword_id) 
+            VALUES ({}, {})
+            """.format(restaurant_id, keyword_id)
+            self.connection.execute_query(insert_query)
+            return True
+        return False  # Keyword already assigned to this restaurant
+    
+    def remove_keyword_from_restaurant(self, restaurant_id, keyword_id):
+        """Remove a keyword from a restaurant"""
+        delete_query = """
+        DELETE FROM Restaurant_Keyword 
+        WHERE restaurant_id = %s AND keyword_id = %s
+        """
+        self.connection.execute_query(delete_query, restaurant_id, keyword_id)
+        return True
+    
+    def get_manager_keywords(self):
+        """Get all keywords created by this manager"""
+        query = """
+        SELECT keyword_id, keyword, manager_id
+        FROM Keyword
+        WHERE manager_id = {}
+        """.format(self.manager.user_id)
+        result = self.connection.execute_query(query)
+        keywords = []
+        
+        if result and len(result) > 0:
+            for row in result:
+                keyword = Keyword(row[0], row[1], row[2])
+                keywords.append(keyword)
         return keywords
     
+    def create_menu_item(self, name, image, description, price, restaurant_id):
+        """Create a new menu item for a restaurant"""
+        # Add quotes around string values for SQL
+        quoted_name = f"'{name}'"
+        quoted_image = f"'{image}'"
+        quoted_description = f"'{description}'"
+        
+        # Create the insert query
+        insert_query = """
+        INSERT INTO Menu_Item (name, image, description, price, restaurant_id) 
+        VALUES ({}, {}, {}, {}, {})
+        """.format(quoted_name, quoted_image, quoted_description, price, restaurant_id)
+        
+        # Execute the query
+        self.connection.execute_query(insert_query)
+        
+        # Get the ID of the inserted menu item
+        get_id_query = "SELECT LAST_INSERT_ID()"
+        result = self.connection.execute_query(get_id_query)
+        return result[0][0]  # Return the new menu item ID
     
-    def create_discount(self, discount_rate, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. Discount ekle
-        insert_discount = "INSERT INTO Discount (discount_rate, restaurant_id) VALUES ({}, {})".format(discount_rate, restaurant_id)
-        self.connection.execute_query(insert_discount)
-        return 1
-    
-    def get_all_discounts(self, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. Discountları al
-        query_discounts = "SELECT * FROM Discount WHERE restaurant_id = {}".format(restaurant_id)
-        result_discounts = self.connection.execute_query(query_discounts)
-        discounts = []
-
-        for row in result_discounts: 
-            discount = row[1]
-            discounts.append(discount)
-
-        return discounts
-    
-    def get_all_orders(self, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. Cart'ı al
-        query_orders = "SELECT * FROM Cart WHERE restaurant_id = {}".format(restaurant_id)
-        result_orders = self.connection.execute_query(query_orders)
-        orders = []
-
-        for row in result_orders: 
-            order = row[1]
-            orders.append(order)
-
-        return orders
-    
-    def accept_order(self, id):
-        # 1. Cart'ı kabul et
-        update_order = "UPDATE Cart SET status = 'Accepted' WHERE id = {}".format(id)
-        self.connection.execute_query(update_order)
-        return 1
-    
-    def show_latest_ten_ratings(self, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. Ratingleri al
-        query_ratings = "SELECT * FROM Rating WHERE restaurant_id = {} ORDER BY rating_date DESC LIMIT 10".format(restaurant_id)
-        result_ratings = self.connection.execute_query(query_ratings)
-        ratings = []
-
-        for row in result_ratings: 
-            rating = row[1]
-            ratings.append(rating)
-
-        return ratings
-    
-    def get_total_revenue(self, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. Toplam geliri al
-        query_revenue = "SELECT SUM(total_price) FROM Cart WHERE restaurant_id = {}".format(restaurant_id)
-        result_revenue = self.connection.execute_query(query_revenue)
-        if result_revenue and len(result_revenue) > 0:
-            return result_revenue[0][0]
-        return 0
-    
-    def get_number_of_orders(self, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. Toplam sipariş sayısını al
-        query_orders = "SELECT COUNT(*) FROM Cart WHERE restaurant_id = {}".format(restaurant_id)
-        result_orders = self.connection.execute_query(query_orders)
-        if result_orders and len(result_orders) > 0:
-            return result_orders[0][0]
-        return 0
-    
-    def get_all_restaurants(self):
-        query = "SELECT * FROM Restaurant"
-        result = self.connection.execute_query(query)
-        restaurants = []
-
-        for row in result: 
-            restaurant = Restaurant(row[0], row[1], row[2], row[3], row[4])
-            restaurants.append(restaurant)
-
-        return restaurants
-    
-    def get_the_most_ordering_customer(self, restaurant_name):
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. En çok sipariş veren müşteriyi al
-        query_customer = "SELECT customer_id FROM Cart WHERE restaurant_id = {} GROUP BY customer_id ORDER BY COUNT(*) DESC LIMIT 1".format(restaurant_id)
-        result_customer = self.connection.execute_query(query_customer)
-        if result_customer and len(result_customer) > 0:
-            return result_customer[0][0]
-        return 0
-    
-    def get_the_customer_with_highest_cart_value(self, restaurant_name):
-        # total_price Cart tablosunda yok, bu yüzden fonksiyon implement edilmedi.
-        raise NotImplementedError("total_price Cart tablosunda yok")
-        # 1. Restaurant id'yi bul
-        query_restaurant = "SELECT restaurant_id FROM Restaurant WHERE restaurant_name = '{}'".format(restaurant_name)
-        result_restaurant = self.connection.execute_query(query_restaurant)
-        if not result_restaurant or len(result_restaurant) == 0:
-            return 0
-        restaurant_id = result_restaurant[0][0]
-
-        # 2. En yüksek sepet değerine sahip müşteriyi al
-        query_customer = "SELECT customer_id FROM Cart WHERE restaurant_id = {} GROUP BY customer_id ORDER BY SUM(total_price) DESC LIMIT 1".format(restaurant_id)
-        result_customer = self.connection.execute_query(query_customer)
-        if result_customer and len(result_customer) > 0:
-            return result_customer[0][0]
-        return 0
+    def delete_menu_item(self, menu_item_id, restaurant_id):
+        """Delete a menu item from a restaurant's menu"""
+        # First verify that this menu item belongs to the restaurant
+        # (security check to prevent deletion of other restaurants' items)
+        check_query = """
+        SELECT id FROM Menu_Item 
+        WHERE id = {} AND restaurant_id = {}
+        """.format(menu_item_id, restaurant_id)
+        
+        result = self.connection.execute_query(check_query)
+        
+        if result and len(result) > 0:
+            # Delete the menu item
+            delete_query = """
+            DELETE FROM Menu_Item 
+            WHERE id = {}
+            """.format(menu_item_id)
+            
+            self.connection.execute_query(delete_query)
+            return True
+        return False  # Menu item not found or doesn't belong to this restaurant
