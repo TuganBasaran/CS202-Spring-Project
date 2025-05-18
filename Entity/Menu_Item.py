@@ -1,10 +1,11 @@
-class Menu_Item(): 
-    def __init__(self, id, name, image, description, price, restaurant_id):
+class  Menu_Item(): 
+    def __init__(self, id, name, image, description, price, restaurant_id, discount_rate= 0):
         self.id = id 
         self.name = name 
         self.image = image 
         self.description = description
         self.price = price 
+        self.discount_rate= discount_rate
         self.restaurant_id = restaurant_id
 
     def __repr__(self):

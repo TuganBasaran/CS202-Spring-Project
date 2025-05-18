@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Discounts - {{ restaurant.restaurant_name }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .btn {
+        padding: 8px 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+      }
+      .btn:hover {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Discounts for {{ restaurant.restaurant_name }}</h1>
+
+      <div class="action-buttons">
+        <a
+          href="{{ url_for('add_discount_form', restaurant_id=restaurant.restaurant_id) }}"
+          class="btn"
+          >Add New Discount</a
+        >
+        <a
+          href="{{ url_for('restaurant_page', restaurant_id=restaurant.restaurant_id) }}"
+          class="btn"
+          >Back to Restaurant</a
+        >
+      </div>
+
+      <h2>Menu Items with Active Discounts</h2>
+
+      {% if menu_items %}
+      <table>
+        <thead>
+          <tr>
+            <th>Menu Item</th>
+            <th>Original Price</th>
+            <th>Discount</th>
+            <th>Discounted Price</th>
+            <th>Valid Until</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for menu in menu_items %} {% if menu.has_discount %}
+          <tr>
+            <td>{{ menu.name }}</td>
+            <td>{{ menu.original_price }} TL</td>
+            <td>{{ menu.discount_rate }}%</td>
+            <td>{{ menu.price }} TL</td>
+            <td>{{ menu.end_date }}</td>
+            <td>
+              <form
+                action="{{ url_for('remove_discount', restaurant_id=restaurant.restaurant_id, menu_item_id=menu.id, discount_id=menu.discount_id) }}"
+                method="post"
+                onsubmit="return confirm('Are you sure you want to remove this discount?');"
+              >
+                <button type="submit" class="btn btn-danger">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% endif %} {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No menu items with active discounts found.</p>
+      {% endif %}
+    </div>
+  </body>
+</html>

@@ -50,11 +50,31 @@
 
     <section id="Menu Item List">
       <h2>Menu Item List</h2>
-      <a
-        href="{{ url_for('add_menu_item_form', restaurant_id=restaurant.restaurant_id) }}"
-        class="btn"
-        >Add Menu Item</a
-      >
+      <div style="margin-bottom: 10px">
+        <a
+          href="{{ url_for('add_menu_item_form', restaurant_id=restaurant.restaurant_id) }}"
+          class="btn"
+          >Add Menu Item</a
+        >
+        <a
+          href="{{ url_for('restaurant_discounts', restaurant_id=restaurant.restaurant_id) }}"
+          class="btn"
+          style="margin-left: 10px"
+          >Manage Discounts</a
+        >
+        <a
+          href="{{ url_for('restaurant_orders', restaurant_id=restaurant.restaurant_id) }}"
+          class="btn"
+          style="margin-left: 10px"
+          >Manage Orders</a
+        >
+        <a
+          href="{{ url_for('menu_item_stats', restaurant_id=restaurant.restaurant_id) }}"
+          class="btn"
+          style="margin-left: 10px"
+          >Sales Analytics</a
+        >
+      </div>
 
       {% if menu_item_list %}
       <ul style="list-style-type: none; padding: 0">
@@ -76,7 +96,29 @@
               style="max-width: 100px; max-height: 100px; margin-right: 10px"
             />
             {% endif %}
-            <strong>{{ menu.name }}</strong> - {{ menu.price }} TL<br />
+            <strong>{{ menu.name }}</strong>
+            {% if menu.has_discount %}
+            <span style="text-decoration: line-through; color: #999"
+              >{{ menu.original_price }} TL</span
+            >
+            <span style="color: #e74c3c; font-weight: bold"
+              >{{ menu.price }} TL</span
+            >
+            <span
+              style="
+                background-color: #e74c3c;
+                color: white;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-size: 0.8em;
+              "
+            >
+              %{{ menu.discount_rate }} OFF
+            </span>
+            {% else %}
+            <span>{{ menu.price }} TL</span>
+            {% endif %}
+            <br />
             {{ menu.description }}
           </div>
           <div>

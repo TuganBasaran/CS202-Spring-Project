@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{ title }} - {{ restaurant.restaurant_name }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+      th,
+      td {
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .btn {
+        padding: 8px 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn-secondary {
+        background-color: #6c757d;
+      }
+      .btn-primary {
+        background-color: #007bff;
+      }
+      .btn-success {
+        background-color: #28a745;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+      }
+      .btn:hover {
+        opacity: 0.8;
+      }
+      .filter-tabs {
+        margin-bottom: 20px;
+      }
+      .filter-tabs a {
+        margin-right: 15px;
+        text-decoration: none;
+        padding: 5px 10px;
+      }
+      .filter-tabs a.active {
+        font-weight: bold;
+        border-bottom: 2px solid #007bff;
+      }
+      .status-waiting {
+        color: #6c757d;
+        font-weight: bold;
+      }
+      .status-accepted {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .status-delivered {
+        color: #007bff;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <nav style="text-align: right; margin: 10px">
+      <form
+        method="post"
+        action="{{ url_for('logout') }}"
+        style="display: inline"
+      >
+        <button type="submit">Log Out</button>
+      </form>
+    </nav>
+
+    <div class="container">
+      <h1>{{ title }} for {{ restaurant.restaurant_name }}</h1>
+
+      <div class="action-buttons">
+        <a
+          href="{{ url_for('restaurant_page', restaurant_id=restaurant.restaurant_id) }}"
+          class="btn btn-secondary"
+          >Back to Restaurant</a
+        >
+      </div>
+
+      <div class="filter-tabs">
+        <a
+          href="{{ url_for('restaurant_orders', restaurant_id=restaurant.restaurant_id, filter='all') }}"
+          class="{% if filter == 'all' %}active{% endif %}"
+          >All Orders</a
+        >
+        <a
+          href="{{ url_for('restaurant_orders', restaurant_id=restaurant.restaurant_id, filter='pending') }}"
+          class="{% if filter == 'pending' %}active{% endif %}"
+          >Pending Orders</a
+        >
+      </div>
+
+      {% if orders %}
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total Price</th>
+            <th>Order Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.customer_name }}</td>
+            <td>{{ order.items }}</td>
+            <td>{{ order.total_price }} TL</td>
+            <td>{{ order.order_time }}</td>
+            <td>
+              <span class="status-{{ order.status }}">
+                {{ order.status | title }}
+              </span>
+            </td>
+            <td>
+              {% if order.status == 'waiting' %}
+              <form
+                action="{{ url_for('accept_order', restaurant_id=restaurant.restaurant_id, order_id=order.id) }}"
+                method="post"
+                style="display: inline"
+              >
+                <button type="submit" class="btn btn-success">Accept</button>
+              </form>
+              {% elif order.status == 'accepted' %}
+              <form
+                action="{{ url_for('deliver_order', restaurant_id=restaurant.restaurant_id, order_id=order.id) }}"
+                method="post"
+                style="display: inline"
+              >
+                <button type="submit" class="btn btn-primary">
+                  Mark Delivered
+                </button>
+              </form>
+              {% else %}
+              <span>Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No {{ filter }} orders found.</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
