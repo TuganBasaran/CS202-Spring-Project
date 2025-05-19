@@ -1,7 +1,5 @@
 from Entity.User import User
 from Entity.User.Customer import Customer
-#from Service.Manager_service import get_restaurant_ratings
-
 class Customer_Service():
     def __init__(self, connection):
         self.connection = connection
@@ -13,7 +11,7 @@ class Customer_Service():
                      f"U.user_id WHERE user_name = '{username}' AND password = '{password}'")
             result = self.connection.execute_query(query)
             if result and len(result) > 0:
-                id = result[0][0]  # first row, first column = user_id
+                id = result[0][0]
                 self.user = Customer(id, username, password)
                 return result
             return 0
@@ -70,6 +68,30 @@ class Customer_Service():
         except Exception as e:
             print("Error while adding phone number:", e)
             return e
+
+    def get_restaurants_sorted_by_rating(self, customer_id):
+        try:
+            query = f"""
+            SELECT R.restaurant_id, R.restaurant_name, A.city,
+                AVG(RT.rating) AS average_rating FROM Customer C
+            JOIN Address AC ON C.customer_id = AC.user_id
+            JOIN Restaurant R ON R.address_id IN (
+            SELECT address_id FROM Address WHERE city = AC.city )
+            JOIN Address A ON R.address_id = A.address_id
+            LEFT JOIN Rating RT ON R.restaurant_id = RT.restaurant_id
+            WHERE C.customer_id = {customer_id}
+            GROUP BY  R.restaurant_id, R.restaurant_name, A.city
+            ORDER BY average_rating DESC;
+            """
+            result = self.connection.execute_query(query)
+            return result
+        except Exception as e:
+            print("Failed to get restaurants by rating")
+            print(e)
+            return None
+
+
+    def add_item_to_cart(self):
 
     def select_by_id(self, id):
         query = f'SELECT * FROM User WHERE user_id= {id}'

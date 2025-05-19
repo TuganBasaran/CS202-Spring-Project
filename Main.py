@@ -10,5 +10,6 @@ customer_service = Customer_Service(connector)
 #res1 = customer_service.create_rating(cart_id="5", rating="5", comment="Excelent", customer_id="14", restaurant_id="5")
 print(customer_service.add_address(14, address_name='home',address='çekmeköy',city="Istanbul"))
 print(customer_service.add_phone_number(14, "+9005244247252"))
+print(customer_service.get_restaurants_sorted_by_rating(customer_id="14"))
 
 
