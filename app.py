@@ -1,4 +1,7 @@
 from flask import Flask, render_template, url_for, request, redirect, session
+
+
+from Service.Customer_Service import Customer_Service
 from Service.Manager_Service import Manager_Service
 from Connector import Connector
 from Entity.Restaurant import Restaurant
@@ -7,10 +10,11 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey123'  # Session için gerekli anahtar
 
 user = 'root'
-password = 'password'
-database = 'CS202'
+password = 'test123'
+database = 'cs202'
 connector = Connector(user, password, database)
 manager_service = Manager_Service(connector)
+customer_service = Customer_Service(connector)
 
 @app.route('/', methods=['GET'])
 def index():
@@ -45,9 +49,18 @@ def login():
                                   total_orders=total_orders)
         else:
             return render_template("index.html", error="Invalid credentials")
+            # Assume 'customer_service' is already created from Customer_Service(connection)
+
     else:
-        # Customer veya diğer roller için de bir response dön
-        return render_template("index.html", error="Sadece manager girişi destekleniyor.")
+        login_success = customer_service.login(username=username, password=password)
+
+        if login_success:
+            local_restaurants = customer_service.get_restaurants_sorted_by_rating()
+
+            return render_template("Customer/customer_menu.html",
+                                    restaurants=local_restaurants,
+                                    username=customer_service.user.user_name)
+
 
 @app.route('/restaurant/<int:restaurant_id>')
 def restaurant_page(restaurant_id):

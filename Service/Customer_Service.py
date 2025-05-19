@@ -14,14 +14,15 @@ class Customer_Service():
             if result and len(result) > 0:
                 id = result[0][0]
                 self.user = Customer(id, username, password)
-                return result
-            return 0
+                return True
+            return False
         except Exception as e:
             print("Login failed")
             print(e)
 
-    def get_ratings(self, customer_id):
+    def get_ratings(self):
         # Çıktı düzenlenmeli
+        customer_id = self.user.user_id
         try:
             query = (f"SELECT R.id, R.rating, R.comment, R.created_at, Res.restaurant_name "
                      f"FROM Rating R "
@@ -48,7 +49,8 @@ class Customer_Service():
             print("Error while creating rating:", e)
             return e
 
-    def add_address(self, user_id, address_name, address, city):
+    def add_address(self, address_name, address, city):
+        user_id = self.user.user_id
         try:
             query = (f"INSERT INTO Address (user_id, address_name, address, city)"
                      f"VALUES ({user_id}, '{address_name}', '{address}', '{city}')")
@@ -59,7 +61,8 @@ class Customer_Service():
             print("Error while adding address:", e)
             return e
 
-    def add_phone_number(self, user_id, phone_number):
+    def add_phone_number(self, phone_number):
+        user_id = self.user.user_id
         try:
             query = (f"INSERT INTO Phone_Number (user_id, phone_number)"
                      f"VALUES ({user_id}, '{phone_number}')")
@@ -70,7 +73,8 @@ class Customer_Service():
             print("Error while adding phone number:", e)
             return e
 
-    def get_restaurants_sorted_by_rating(self, customer_id):
+    def get_restaurants_sorted_by_rating(self):
+        customer_id = self.user.user_id
         try:
             query = f"""
             SELECT R.restaurant_id, R.restaurant_name, A.city,
