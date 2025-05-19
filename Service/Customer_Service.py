@@ -1,6 +1,6 @@
 from Entity.User import User
 from Entity.User.Customer import Customer
-
+#from Service.Manager_service import get_restaurant_ratings
 
 class Customer_Service():
     def __init__(self, connection):
@@ -40,15 +40,35 @@ class Customer_Service():
         #Should the restaurant Id insertion handled here and should we allow multiple ratings
         #Cart and rating can have mismatch info since the restaurant is  manual
         try:
-            query = f"""
-                INSERT INTO Rating (cart_id, rating, comment, customer_id, restaurant_id)
-                VALUES ({cart_id}, {rating}, '{comment}', {customer_id}, {restaurant_id})
-            """
+            query = (f" INSERT INTO Rating (cart_id, rating, comment, customer_id, restaurant_id)"
+                     f"VALUES ({cart_id}, {rating}, '{comment}', {customer_id}, {restaurant_id})")
             self.connection.execute_query(query)
             print("Created rating")
             return True
         except Exception as e:
             print("Error while creating rating:", e)
+            return e
+
+    def add_address(self, user_id, address_name, address, city):
+        try:
+            query = (f"INSERT INTO Address (user_id, address_name, address, city)"
+                     f"VALUES ({user_id}, '{address_name}', '{address}', '{city}')")
+            self.connection.execute_query(query)
+            print("Added address")
+            return True
+        except Exception as e:
+            print("Error while adding address:", e)
+            return e
+
+    def add_phone_number(self, user_id, phone_number):
+        try:
+            query = (f"INSERT INTO Phone_Number (user_id, phone_number)"
+                     f"VALUES ({user_id}, '{phone_number}')")
+            self.connection.execute_query(query)
+            print("Added Phone Number")
+            return True
+        except Exception as e:
+            print("Error while adding phone number:", e)
             return e
 
     def select_by_id(self, id):
