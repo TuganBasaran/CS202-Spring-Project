@@ -306,26 +306,58 @@ def menu_item_stats(restaurant_id):
     # Default to 30 days, but allow query parameter to change
     days = request.args.get('days', 30, type=int)
     
-    menu_stats = manager_service.get_menu_item_sales_stats(restaurant_id, days)
-    
-    # Calculate totals
-    total_quantity = sum(item['total_quantity'] for item in menu_stats)
-    total_revenue = sum(item['total_revenue'] for item in menu_stats)
-    
+    menu_stats_raw = manager_service.get_menu_item_sales_stats(restaurant_id, days)
+    # menu_stats_raw is a list of (Menu_Item, total_quantity, total_revenue)
+    menu_stats = []
+    total_quantity = 0
+    total_revenue = 0
+    for menu_item, quantity, revenue in menu_stats_raw:
+        menu_stats.append({
+            'id': menu_item.id,
+            'name': menu_item.name,
+            'image': menu_item.image,
+            'description': menu_item.description,
+            'price': menu_item.price,
+            'total_quantity': quantity,
+            'total_revenue': revenue
+        })
+        total_quantity += quantity
+        total_revenue += revenue
+
     # Get the customer with most orders
-    top_customer = manager_service.get_customer_most_orders(restaurant_id, days)
-    
+    top_customer_tuple = manager_service.get_customer_most_orders(restaurant_id, days)
+    if top_customer_tuple:
+        top_customer, order_count = top_customer_tuple
+        top_customer_dict = {
+            'user_id': top_customer.user_id,
+            'user_name': top_customer.user_name,
+            'order_count': order_count
+        }
+    else:
+        top_customer_dict = None
+
     # Get the customer with highest-value cart
-    top_cart_customer = manager_service.get_customer_highest_value_cart(restaurant_id, days)
-    
+    top_cart_tuple = manager_service.get_customer_highest_value_cart(restaurant_id, days)
+    if top_cart_tuple:
+        cart, customer = top_cart_tuple
+        top_cart_customer_dict = {
+            'user_id': customer.user_id,
+            'user_name': customer.user_name,
+            'total_value': round(getattr(cart, 'total_value', None), 2),
+            'order_time': getattr(cart, 'order_time', None),
+            'cart_items': getattr(cart, 'cart_items', None)
+        }
+    else:
+        top_cart_customer_dict = None
+
     return render_template('manager/menu_stats.html',
                           restaurant=restaurant,
                           menu_stats=menu_stats,
                           days=days,
                           total_quantity=total_quantity,
                           total_revenue=total_revenue,
-                          top_customer=top_customer,
-                          top_cart_customer=top_cart_customer)
+                          top_customer=top_customer_dict,
+                          top_cart_customer=top_cart_customer_dict)
 
 if __name__ == '__main__':  
     app.run(debug=True)

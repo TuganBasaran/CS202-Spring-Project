@@ -137,7 +137,7 @@
                     <p><strong>Customer:</strong> {{ top_cart_customer.user_name }}</p>
                     <p><strong>Order Value:</strong> {{ top_cart_customer.total_value }} TL</p>
                     <p><strong>Order Date:</strong> {{ top_cart_customer.order_time }}</p>
-                    <p><strong>Items:</strong><br> {{ top_cart_customer.cart_items }}</p>  <!-- Changed from .items to .cart_items -->
+                    <p><strong>Items:</strong><br> {{ top_cart_customer.cart_items }}</p>
                     {% else %}
                     <p>No order data available for this period.</p>
                     {% endif %}

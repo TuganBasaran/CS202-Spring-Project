@@ -6,6 +6,7 @@ from Entity.Address import Address
 from Entity.Rating import Rating
 from Entity.Discount import Discount
 from Entity.Cart import Cart
+from Entity.User.Customer import Customer
 
 class Manager_Service(): 
     def __init__(self, connection):
@@ -507,7 +508,7 @@ class Manager_Service():
         """Get total quantity sold and revenue per menu item for the past month"""
         query = """
         SELECT 
-            m.id, m.name, m.image, m.price,
+            m.id, m.name, m.image, m.description, m.price, m.restaurant_id,
             SUM(con.quantity) as total_quantity,
             SUM(m.price * con.quantity) as total_revenue
         FROM 
@@ -531,23 +532,18 @@ class Manager_Service():
         
         if result and len(result) > 0:
             for row in result:
-                item_stat = {
-                    'id': row[0],
-                    'name': row[1],
-                    'image': row[2],
-                    'price': row[3],
-                    'total_quantity': row[4],
-                    'total_revenue': round(row[5], 2)
-                }
-                menu_item_stats.append(item_stat)
-    
+                # row: id, name, image, description, price, restaurant_id, total_quantity, total_revenue
+                menu_item = Menu_Item(row[0], row[1], row[2], row[3], row[4], row[5])
+                # Instead of setting attributes, use a tuple or dict if needed, but return Entity
+                menu_item_stats.append((menu_item, row[6], round(row[7], 2)))
+        
         return menu_item_stats
     
     def get_customer_most_orders(self, restaurant_id, days=30):
         """Get the customer who placed the most orders in the specified time period"""
         query = """
         SELECT 
-            u.user_id, u.user_name,
+            u.user_id, u.user_name, u.password,
             COUNT(DISTINCT c.id) as order_count
         FROM 
             Cart c
@@ -566,11 +562,9 @@ class Manager_Service():
         result = self.connection.execute_query(query)
         
         if result and len(result) > 0:
-            return {
-                'user_id': result[0][0],
-                'user_name': result[0][1],
-                'order_count': result[0][2]
-            }
+            customer = Customer(result[0][0], result[0][1], result[0][2])
+            # Return as tuple (Customer, order_count)
+            return customer, result[0][3]
         
         return None  # No customers with orders in this period
 
@@ -579,7 +573,7 @@ class Manager_Service():
         query = """
         SELECT 
             c.id as cart_id,
-            u.user_id, u.user_name,
+            u.user_id, u.user_name, u.password,
             SUM(m.price * con.quantity) as total_value,
             c.order_time,
             GROUP_CONCAT(CONCAT(m.name, ' (', con.quantity, ')') SEPARATOR ', ') as cart_items
@@ -603,13 +597,12 @@ class Manager_Service():
         result = self.connection.execute_query(query)
         
         if result and len(result) > 0:
-            return {
-                'cart_id': result[0][0],
-                'user_id': result[0][1],
-                'user_name': result[0][2],
-                'total_value': result[0][3],
-                'order_time': result[0][4],
-                'cart_items': result[0][5]  # Changed from 'items' to 'cart_items'
-            }
+            customer = Customer(result[0][1], result[0][2], result[0][3])
+            cart = Cart(result[0][0], result[0][1], restaurant_id, None, result[0][5])
+            cart.customer = customer
+            cart.total_value = result[0][4]
+            cart.cart_items = result[0][6]
+            # Return as tuple (Cart, Customer)
+            return cart, customer
         
         return None  # No carts in this period
