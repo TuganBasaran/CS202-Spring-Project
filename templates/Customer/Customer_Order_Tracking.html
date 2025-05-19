@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sipariş Takibi</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; }
+        .order-container { width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px; }
+        h2 { text-align: center; margin-bottom: 24px; }
+        .order-list { list-style-type: none; padding: 0; }
+        .order-item { border-bottom: 1px solid #eee; padding: 16px 0; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; }
+        .order-status { padding: 4px 12px; border-radius: 12px; font-size: 13px; color: #fff; }
+        .status-preparing { background: #ffc107; }
+        .status-onway { background: #17a2b8; }
+        .status-delivered { background: #28a745; }
+        .status-cancelled { background: #dc3545; }
+        .order-details { font-size: 14px; color: #555; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div class="order-container">
+        <h2>Siparişlerim</h2>
+        {% if orders %}
+        <ul class="order-list">
+            {% for order in orders %}
+            <li class="order-item">
+                <div class="order-header">
+                    <div>
+                        <strong>#{{ order.id }}</strong> - {{ order.restaurant_name }}
+                    </div>
+                    <span class="order-status status-{{ order.status_class }}">{{ order.status }}</span>
+                </div>
+                <div class="order-details">
+                    Tarih: {{ order.date }}<br>
+                    Toplam: {{ order.total }}₺
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>Henüz bir siparişiniz yok.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

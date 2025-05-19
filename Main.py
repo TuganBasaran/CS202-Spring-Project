@@ -2,7 +2,7 @@ from Connector import Connector
 from Service.Customer_Service import Customer_Service
 from Service.Manager_Service import Manager_Service
 
-connector = Connector('root', 'test123', 'CS202')
+connector = Connector('root', 'Wthrw_<>1215@', 'CS202')
 customer_service = Customer_Service(connector)
 manager_service = Manager_Service(connector)
 

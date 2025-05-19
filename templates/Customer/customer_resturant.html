@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ restaurant_name }} - Menu</title>
+    <style>
+        .menu-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.07);
+        }
+        .item-info {
+            flex: 1;
+        }
+        .add-btn {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .add-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>
+        {{ restaurant_name }} Menu
+        <a href="{{ url_for('restaurant_ratings', restaurant_id=restaurant_id) }}">
+            <button class="add-btn" style="margin-left:16px; background:#28a745;">Ratings</button>
+        </a>
+    </h2>
+    {% if menu_items %}
+    <ul class="menu-list">
+        {% for item in menu_items %}
+        <li class="menu-item">
+            <div class="item-info">
+                <strong>{{ item.name }}</strong> - {{ item.price }}₺
+                <br>
+                <small>{{ item.description }}</small>
+            </div>
+            <form method="post" action="{{ url_for('add_to_cart', item_id=item.id) }}">
+                <button type="submit" class="add-btn">Add to Cart</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No menu items found for this restaurant.</p>
+    {% endif %}
+</body>
+</html>
