@@ -346,24 +346,6 @@ class Manager_Service():
         """.format(menu_item_id, discount_id)
         self.connection.execute_query(delete_query)
         return True
-
-    def get_menu_item_discounts(self, menu_item_id):
-        """Get all discounts for a specific menu item"""
-        query = """
-        SELECT d.id, d.discount_rate, d.start_date, d.end_date
-        FROM Discount d
-        JOIN Has_Discount hd ON d.id = hd.discount_id
-        WHERE hd.menu_item_id = {}
-        """.format(menu_item_id)
-        
-        result = self.connection.execute_query(query)
-        discounts = []
-        
-        if result and len(result) > 0:
-            for row in result:
-                discount = Discount(row[0], row[1], row[2], row[3])
-                discounts.append(discount)
-        return discounts
     
     def get_restaurant_pending_orders(self, restaurant_id):
         """Get all pending orders for a restaurant"""
