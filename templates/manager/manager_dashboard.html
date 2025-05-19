@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manager Dashboard</title>
+    <style>
+      .summary-box {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .summary-item {
+        display: inline-block;
+        margin-right: 30px;
+      }
+      .summary-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #28a745;
+      }
+      .summary-label {
+        font-size: 14px;
+        color: #6c757d;
+      }
+      .restaurant-list {
+        list-style-type: none;
+        padding: 0;
+      }
+      .restaurant-item {
+        margin-bottom: 15px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .restaurant-stats {
+        margin-top: 8px;
+        display: flex;
+        gap: 20px;
+      }
+      .stat-item {
+        font-size: 14px;
+        color: #555;
+      }
+      .stat-value {
+        font-weight: bold;
+        color: #28a745;
+      }
+    </style>
+  </head>
+  <body>
+    <nav style="text-align: right; margin: 10px">
+      <form
+        method="post"
+        action="{{ url_for('logout') }}"
+        style="display: inline"
+      >
+        <button type="submit">Log Out</button>
+      </form>
+    </nav>
+    <h2>Welcome, {{ username }}!</h2>
+
+    <div class="summary-box">
+      <div class="summary-item">
+        <div class="summary-value">{{ total_revenue }} TL</div>
+        <div class="summary-label">Total Revenue</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value">{{ total_orders }}</div>
+        <div class="summary-label">Total Orders</div>
+      </div>
+    </div>
+
+    <h3>Your Restaurants:</h3>
+    {% if restaurants %}
+    <ul class="restaurant-list">
+      {% for restaurant in restaurants %}
+      <li class="restaurant-item">
+        <a
+          href="{{ url_for('restaurant_page', restaurant_id=restaurant.restaurant_id) }}"
+        >
+          {{ restaurant.restaurant_name }} - {{ restaurant.cuisine_type }}
+        </a>
+        <br />
+        Address: {{ restaurant.address.address }}<br />
+        City: {{ restaurant.address.city }}
+
+        <div class="restaurant-stats">
+          <div class="stat-item">
+            Revenue: <span class="stat-value">{{ restaurant.revenue }} TL</span>
+          </div>
+          <div class="stat-item">
+            Orders: <span class="stat-value">{{ restaurant.order_count }}</span>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>You have no restaurants.</p>
+    {% endif %}
+  </body>
+</html>

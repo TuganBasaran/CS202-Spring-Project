@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add Menu Item - {{ restaurant.restaurant_name }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px 15px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .btn-secondary {
+        background-color: #6c757d;
+      }
+      .btn-secondary:hover {
+        background-color: #5a6268;
+      }
+    </style>
+  </head>
+  <body>
+    <nav style="text-align: right; margin: 10px">
+      <form
+        method="post"
+        action="{{ url_for('logout') }}"
+        style="display: inline"
+      >
+        <button type="submit">Log Out</button>
+      </form>
+    </nav>
+
+    <div class="container">
+      <h1>Add Menu Item for {{ restaurant.restaurant_name }}</h1>
+
+      <form
+        action="{{ url_for('add_menu_item', restaurant_id=restaurant.restaurant_id) }}"
+        method="post"
+      >
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="price">Price (TL):</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            step="0.01"
+            min="0"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="image">Image URL:</label>
+          <input type="text" id="image" name="image" placeholder="image.jpg" />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description:</label>
+          <textarea id="description" name="description" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <button type="submit">Add Menu Item</button>
+          <a
+            href="{{ url_for('restaurant_page', restaurant_id=restaurant.restaurant_id) }}"
+            class="btn btn-secondary"
+            style="text-decoration: none; padding: 10px 15px; margin-left: 10px"
+            >Cancel</a
+          >
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

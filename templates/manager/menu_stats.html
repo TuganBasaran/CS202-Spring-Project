@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu Sales Statistics - {{ restaurant.restaurant_name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .period-selector {
+            margin-bottom: 20px;
+        }
+        .menu-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .item-row {
+            display: flex;
+            align-items: center;
+        }
+        .total-row {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .customer-insights {
+            margin-bottom: 30px;
+        }
+        .insight-cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            flex: 1;
+            min-width: 300px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav style="text-align: right; margin: 10px">
+        <form method="post" action="{{ url_for('logout') }}" style="display: inline">
+            <button type="submit">Log Out</button>
+        </form>
+    </nav>
+
+    <div class="container">
+        <h1>Menu Sales Statistics - {{ restaurant.restaurant_name }}</h1>
+        
+        <div class="action-buttons">
+            <a href="{{ url_for('restaurant_page', restaurant_id=restaurant.restaurant_id) }}" class="btn btn-secondary">Back to Restaurant</a>
+        </div>
+        
+        <div class="period-selector">
+            <form method="get">
+                <label for="days">Time Period:</label>
+                <select id="days" name="days" onchange="this.form.submit()">
+                    <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 Days</option>
+                    <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 Days</option>
+                    <option value="365" {% if days == 365 %}selected{% endif %}>Last Year</option>
+                </select>
+            </form>
+        </div>
+        
+        <div class="customer-insights">
+            <h2>Customer Insights</h2>
+            <div class="insight-cards">
+                <div class="card">
+                    <h3>Most Frequent Customer</h3>
+                    {% if top_customer %}
+                    <p><strong>Customer:</strong> {{ top_customer.user_name }}</p>
+                    <p><strong>Number of Orders:</strong> {{ top_customer.order_count }}</p>
+                    {% else %}
+                    <p>No customer data available for this period.</p>
+                    {% endif %}
+                </div>
+                <div class="card">
+                    <h3>Highest-Value Order</h3>
+                    {% if top_cart_customer %}
+                    <p><strong>Customer:</strong> {{ top_cart_customer.user_name }}</p>
+                    <p><strong>Order Value:</strong> {{ top_cart_customer.total_value }} TL</p>
+                    <p><strong>Order Date:</strong> {{ top_cart_customer.order_time }}</p>
+                    <p><strong>Items:</strong><br> {{ top_cart_customer.cart_items }}</p>
+                    {% else %}
+                    <p>No order data available for this period.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if menu_stats %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Menu Item</th>
+                    <th>Unit Price</th>
+                    <th class="text-right">Quantity Sold</th>
+                    <th class="text-right">Total Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in menu_stats %}
+                <tr>
+                    <td>
+                        <div class="item-row">
+                            {% if item.image %}
+                            <img src="{{ item.image }}" alt="{{ item.name }}" class="menu-image">
+                            {% endif %}
+                            {{ item.name }}
+                        </div>
+                    </td>
+                    <td>{{ item.price }} TL</td>
+                    <td class="text-right">{{ item.total_quantity }}</td>
+                    <td class="text-right">{{ item.total_revenue }} TL</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="2">Total</td>
+                    <td class="text-right">{{ total_quantity }}</td>
+                    <td class="text-right">{{ total_revenue }} TL</td>
+                </tr>
+            </tfoot>
+        </table>
+        {% else %}
+        <p>No sales data available for the selected period.</p>
+        {% endif %}
+        
+        <!-- Debug information, can be removed after fixing -->
+        <div style="margin-top: 50px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd;">
+            <h3>Debug Information:</h3>
+            <p>Time period selected: {{ days }} days</p>
+            <p>Number of menu stats records: {{ menu_stats|length }}</p>
+            <p>top_customer: {{ "Yes" if top_customer else "No" }}</p>
+            <p>top_cart_customer: {{ "Yes" if top_cart_customer else "No" }}</p>
+        </div>
+    </div>
+</body>
+</html>
