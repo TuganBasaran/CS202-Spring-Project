@@ -1,0 +1,18 @@
+<ul>
+  {% for menu in menu_item_list %}
+  <li>
+    <img src="{{ menu.image }}" alt="{{ menu.name }}" />
+    <strong>{{ menu.name }}</strong>
+    {% if menu.has_discount %}
+    <span style="text-decoration: line-through; color: #999"
+      >{{ menu.original_price }} TL</span
+    >
+    <span style="color: #e74c3c; font-weight: bold">{{ menu.price }} TL</span>
+    {% else %}
+    <span>{{ menu.price }} TL</span>
+    {% endif %}
+    <br />
+    {{ menu.description }}
+  </li>
+  {% endfor %}
+</ul>
