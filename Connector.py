@@ -38,4 +38,10 @@ class Connector():
         if self.connection:
             self.connection.close()
             self.connection = None
-            self.cursor = None 
+            self.cursor = None
+
+
+    def get_last_insert_id(self):
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        return cursor.fetchone()[0]

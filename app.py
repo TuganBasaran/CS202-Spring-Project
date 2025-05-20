@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect, session
+from flask import Flask, render_template, url_for, request, redirect, session, flash
 
 from Entity.User.Customer import Customer
 from Service.Customer_Service import Customer_Service
@@ -64,8 +64,8 @@ def login():
             return render_template("index.html", error="Invalid credentials")
 
 
-@app.route('/restaurant/<int:restaurant_id>')
-def restaurant_page(restaurant_id):
+@app.route('/manager/restaurant/<int:restaurant_id>')
+def manager_restaurant_page(restaurant_id):
     if manager_service.manager is None: 
         return render_template("index.html", error= "Manager not set!")
 
@@ -96,6 +96,26 @@ def restaurant_page(restaurant_id):
                               label=label)
     else:
         return "Restoran bulunamadı", 404
+
+@app.route('/customer/restaurant/<int:restaurant_id>')
+def customer_restaurant_page(restaurant_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    restaurant = customer_service.get_restaurant(restaurant_id)
+    if not restaurant:
+        return "Restaurant not found", 404
+
+    menu_items = customer_service.get_restaurant_menu_items(restaurant_id)
+    ratings, avg_rating = customer_service.get_restaurant_ratings(restaurant_id)
+
+    return render_template("Customer/restaurant_view.html",
+                           restaurant=restaurant,
+                           menu_items=menu_items,
+                           ratings=ratings,
+                           average_rating=avg_rating)
+
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -467,6 +487,53 @@ def edit_menu_item(restaurant_id, menu_item_id):
     else:
         return "Failed to update item", 500
 
+@app.route('/cart/add', methods=['POST'])
+def add_to_cart():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
 
-if __name__ == '__main__':  
+    menu_item_id = request.form.get('menu_item_id')
+    restaurant_id = request.form.get('restaurant_id')
+
+    success = customer_service.add_to_cart(user_id, menu_item_id, restaurant_id)
+    if success:
+        flash('Item added to cart successfully!')
+        return redirect(url_for('customer_restaurant_page', restaurant_id=restaurant_id))
+    else:
+        flash('Failed to add item to cart.')
+        return redirect(url_for('customer_restaurant_page', restaurant_id=restaurant_id))
+
+@app.route('/cart/view')
+def view_cart():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    cart, items = customer_service.get_open_cart_details(user_id)
+    if not cart:
+        return render_template("Customer/view_cart.html", empty=True)
+
+    return render_template("Customer/view_cart.html", cart=cart, items=items)
+
+@app.route('/cart/send', methods=['POST'])
+def send_cart():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    cart_id = request.form.get('cart_id')
+    if not cart_id:
+        return "Missing cart ID", 400
+
+    success = customer_service.submit_cart(cart_id)
+    if success:
+        return redirect(url_for('customer_menu'))  # or show confirmation
+    else:
+        return "Failed to submit cart", 500
+
+
+
+
+if __name__ == '__main__':
     app.run(debug=True)

@@ -111,9 +111,185 @@ class Customer_Service():
             print(e)
             return None
 
+    def add_to_cart(self, customer_id, menu_item_id, restaurant_id):
+        try:
+            # 1. Find or create a cart
+            cart_query = f"""
+                SELECT id FROM Cart 
+                WHERE customer_id = {customer_id} 
+                  AND restaurant_id = {restaurant_id}
+                  AND status = 'not_sent'
+            """
+            cart_result = self.connection.execute_query(cart_query)
 
+            if cart_result and len(cart_result) > 0:
+                cart_id = cart_result[0][0]
+            else:
+                # Create new cart
+                create_cart_query = f"""
+                    INSERT INTO Cart (customer_id, restaurant_id, status)
+                    VALUES ({customer_id}, {restaurant_id}, 'not_sent')
+                """
+                self.connection.execute_query(create_cart_query)
+
+                # ✅ Get the last inserted ID from the connection
+                cart_id = self.connection.get_last_insert_id()
+                if not cart_id:
+                    print("Cart creation failed: no cart_id returned.")
+                    return False
+
+            # 2. Insert or update item in cart
+            insert_item_query = f"""
+                INSERT INTO Contains (cart_id, menu_item_id, quantity)
+                VALUES ({cart_id}, {menu_item_id}, 1)
+                ON DUPLICATE KEY UPDATE quantity = quantity + 1
+            """
+            self.connection.execute_query(insert_item_query)
+
+            print(f"Item {menu_item_id} added to cart {cart_id}")
+            return True
+
+        except Exception as e:
+            print("Error in add_to_cart:", e)
+            return False
+
+    def get_last_insert_id(self):
+        return self.connection.cursor.lastrowid
 
     def select_by_id(self, id):
         query = f'SELECT * FROM User WHERE user_id= {id}'
         result = self.connection.execute_query(query)
         return result
+
+    def get_restaurant(self, restaurant_id):
+        try:
+            query = f"""
+                SELECT R.restaurant_id, R.restaurant_name, A.city
+                FROM Restaurant R
+                JOIN Address A ON R.address_id = A.address_id
+                WHERE R.restaurant_id = {restaurant_id}
+            """
+            result = self.connection.execute_query(query)
+            if result and len(result) > 0:
+                row = result[0]
+                return {
+                    'restaurant_id': row[0],
+                    'restaurant_name': row[1],
+                    'city': row[2]
+                }
+            return None
+        except Exception as e:
+            print("Error in get_restaurant:", e)
+            return None
+
+    def get_restaurant_menu_items(self, restaurant_id):
+        try:
+            query = f"""
+                SELECT id, name, image, description, price
+                FROM Menu_Item
+                WHERE restaurant_id = {restaurant_id}
+            """
+            result = self.connection.execute_query(query)
+            menu_items = []
+            for row in result:
+                menu_items.append({
+                    'id': row[0],
+                    'name': row[1],
+                    'image': row[2],
+                    'description': row[3],
+                    'price': row[4]
+                })
+            return menu_items
+        except Exception as e:
+            print("Error in get_restaurant_menu_items:", e)
+            return []
+
+    def get_restaurant_ratings(self, restaurant_id):
+        try:
+            query = f"""
+                SELECT rating, comment, created_at
+                FROM Rating
+                WHERE restaurant_id = {restaurant_id}
+                ORDER BY created_at DESC
+            """
+            result = self.connection.execute_query(query)
+            if result:
+                ratings = result
+                avg_query = f"""
+                    SELECT AVG(rating) FROM Rating
+                    WHERE restaurant_id = {restaurant_id}
+                """
+                avg_result = self.connection.execute_query(avg_query)
+                average = avg_result[0][0] if avg_result and avg_result[0][0] is not None else None
+                return ratings, average
+            return [], None
+        except Exception as e:
+            print("Error fetching ratings:", e)
+            return [], None
+
+    def get_open_cart_details(self, customer_id):
+        try:
+            # Get the open cart
+            cart_query = f"""
+                SELECT id, restaurant_id FROM Cart
+                WHERE customer_id = {customer_id} AND status = 'not_sent'
+                ORDER BY order_time DESC
+                LIMIT 1
+            """
+            cart_result = self.connection.execute_query(cart_query)
+            if not cart_result:
+                return None, []
+
+            cart_id, restaurant_id = cart_result[0]
+
+            # Get restaurant name
+            restaurant_query = f"SELECT restaurant_name FROM Restaurant WHERE restaurant_id = {restaurant_id}"
+            restaurant_name = self.connection.execute_query(restaurant_query)[0][0]
+
+            # Get cart items
+            items_query = f"""
+                SELECT M.id, M.name, M.image, M.price, C.quantity
+                FROM Contains C
+                JOIN Menu_Item M ON C.menu_item_id = M.id
+                WHERE C.cart_id = {cart_id}
+            """
+            item_result = self.connection.execute_query(items_query)
+            items = []
+            total_price = 0
+            for row in item_result:
+                item = {
+                    'id': row[0],
+                    'name': row[1],
+                    'image': row[2],
+                    'price': row[3],
+                    'quantity': row[4],
+                    'subtotal': row[3] * row[4]
+                }
+                total_price += item['subtotal']
+                items.append(item)
+
+            return {
+                'cart_id': cart_id,
+                'restaurant_id': restaurant_id,
+                'restaurant_name': restaurant_name,
+                'total_price': total_price
+            }, items
+
+        except Exception as e:
+            print("Error fetching cart:", e)
+            return None, []
+
+    def submit_cart(self, cart_id):
+        try:
+            query = f"""
+                UPDATE Cart
+                SET status = 'waiting'
+                WHERE id = {cart_id} AND status = 'not_sent'
+            """
+            self.connection.execute_query(query)
+            print(f"Cart {cart_id} submitted.")
+            return True
+        except Exception as e:
+            print("Error submitting cart:", e)
+            return False
+

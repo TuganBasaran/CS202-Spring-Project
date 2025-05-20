@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Cart</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+    .cart-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .cart-item { display: flex; align-items: center; margin-bottom: 15px; }
+    .cart-item img { width: 100px; height: 80px; object-fit: cover; margin-right: 15px; border-radius: 5px; }
+    .cart-item-details { flex: 1; }
+    .price { color: green; font-weight: bold; }
+    .total { font-size: 20px; font-weight: bold; text-align: right; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="cart-container">
+    {% if empty %}
+      <h3>Your cart is empty.</h3>
+    {% else %}
+      <h2>Cart for {{ cart.restaurant_name }}</h2>
+      {% for item in items %}
+        <div class="cart-item">
+          <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.name }}">
+          <div class="cart-item-details">
+            <h4>{{ item.name }}</h4>
+            <p>Quantity: {{ item.quantity }}</p>
+            <p class="price">₺{{ "%.2f"|format(item.subtotal) }}</p>
+          </div>
+        </div>
+      {% endfor %}
+      <div class="total">
+        Total: ₺{{ "%.2f"|format(cart.total_price) }}
+      </div>
+    {% endif %}
+  </div>
+{% if cart %}
+  <form method="post" action="{{ url_for('send_cart') }}">
+    <input type="hidden" name="cart_id" value="{{ cart.cart_id }}">
+    <button type="submit" style="margin-top: 20px;">✅ Send Order</button>
+  </form>
+{% endif %}
+</body>
+</html>
