@@ -10,8 +10,6 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey123'  # Session için gerekli anahtar
 
 user = 'root'
-password = 'test123'
-database = 'cs202'
 connector = Connector(user, password, database)
 manager_service = Manager_Service(connector)
 customer_service = Customer_Service(connector)
@@ -60,7 +58,6 @@ def login():
 
             return render_template("Customer/customer_menu.html",
                                     restaurants=local_restaurants,
-                                    username=customer_service.user.user_name)
         else:
             return render_template("index.html", error="Invalid credentials")
 
@@ -267,7 +264,7 @@ def add_discount_form(restaurant_id):
         return redirect(url_for('index'))
         
     restaurant = manager_service.get_a_restaurant(restaurant_id)
-    menu_items = manager_service.get_restaurant_menu_items(restaurant_id)
+    menu_items = manager_service.get_restaurant_menu_items_with_discounts(restaurant_id)
     
     return render_template('manager/add_discount.html', 
                           restaurant=restaurant,

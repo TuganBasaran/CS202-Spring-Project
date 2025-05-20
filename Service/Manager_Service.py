@@ -216,9 +216,9 @@ class Manager_Service():
         """Remove a keyword from a restaurant"""
         delete_query = """
         DELETE FROM Restaurant_Keyword 
-        WHERE restaurant_id = %s AND keyword_id = %s
-        """
-        self.connection.execute_query(delete_query, restaurant_id, keyword_id)
+        WHERE restaurant_id = {} AND keyword_id = {}
+        """.format(restaurant_id, keyword_id)
+        self.connection.execute_query(delete_query)
         return True
     
     def get_manager_keywords(self):
