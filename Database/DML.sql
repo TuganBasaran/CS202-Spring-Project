@@ -83,21 +83,21 @@ INSERT INTO Restaurant_Keyword (keyword_id, restaurant_id) VALUES
 
 -- MENU ITEM
 INSERT INTO Menu_Item (id, name, image, description, price, restaurant_id) VALUES
-(1, 'Grilled Chicken Shawarma', 'image1.jpg', 'Tender chicken breast wrapped in spices and grilled to perfection.', 107.86, 1),
-(2, 'Spaghetti Carbonara', 'image2.jpg', 'Classic Italian pasta with pancetta, egg, and parmesan.', 91.16, 1),
-(3, 'Sushi Platter', 'image3.jpg', 'Assorted nigiri and rolls served with soy sauce and wasabi.', 141.35, 1),
-(4, 'Falafel Wrap', 'image4.jpg', 'Crispy chickpea balls wrapped with tahini and fresh vegetables.', 69.40, 2),
-(5, 'Beef Burger', 'image5.jpg', 'Juicy beef patty with cheddar, lettuce, tomato, and house sauce.', 167.51, 2),
-(6, 'Pad Thai', 'image6.jpg', 'Stir-fried rice noodles with shrimp, tofu, and peanuts.', 115.20, 2),
-(7, 'Margherita Pizza', 'image7.jpg', 'Wood-fired pizza with fresh mozzarella and basil.', 98.75, 3),
-(8, 'Butter Chicken', 'image8.jpg', 'Creamy tomato-based curry with tender chicken pieces.', 134.00, 3),
-(9, 'Veggie Burrito', 'image9.jpg', 'Tortilla stuffed with beans, rice, salsa, and grilled veggies.', 122.55, 3),
-(10, 'BBQ Ribs', 'image10.jpg', 'Slow-cooked pork ribs glazed with BBQ sauce.', 150.00, 4),
-(11, 'Greek Salad', 'image11.jpg', 'Fresh cucumbers, olives, feta cheese, and olive oil dressing.', 88.80, 4),
-(12, 'Chicken Caesar Wrap', 'image12.jpg', 'Grilled chicken, romaine, parmesan, and Caesar dressing.', 175.00, 4),
-(13, 'Tom Yum Soup', 'image13.jpg', 'Spicy Thai soup with shrimp, mushrooms, and lemongrass.', 92.30, 5),
-(14, 'Beef Tacos', 'image14.jpg', 'Soft tacos filled with spiced beef, salsa, and sour cream.', 146.50, 5),
-(15, 'Chocolate Lava Cake', 'image15.jpg', 'Warm chocolate cake with a gooey center, served with ice cream.', 134.22, 5);
+(1, 'Grilled Chicken Shawarma', 'grilled_chicken_shawarma.jpg', 'Tender chicken breast wrapped in spices and grilled to perfection.', 107.86, 1),
+(2, 'Spaghetti Carbonara', 'spaghetti_carbonara.jpg', 'Classic Italian pasta with pancetta, egg, and parmesan.', 91.16, 1),
+(3, 'Sushi Platter', 'sushi_platter.jpg', 'Assorted nigiri and rolls served with soy sauce and wasabi.', 141.35, 1),
+(4, 'Falafel Wrap', 'falafel_wrap.jpg', 'Crispy chickpea balls wrapped with tahini and fresh vegetables.', 69.40, 2),
+(5, 'Beef Burger', 'beef_burger.jpg', 'Juicy beef patty with cheddar, lettuce, tomato, and house sauce.', 167.51, 2),
+(6, 'Pad Thai', 'pad_thai.jpg', 'Stir-fried rice noodles with shrimp, tofu, and peanuts.', 115.20, 2),
+(7, 'Margherita Pizza', 'margherita_pizza.jpg', 'Wood-fired pizza with fresh mozzarella and basil.', 98.75, 3),
+(8, 'Butter Chicken', 'butter_chicken.jpg', 'Creamy tomato-based curry with tender chicken pieces.', 134.00, 3),
+(9, 'Veggie Burrito', 'veggie_burrito.jpg', 'Tortilla stuffed with beans, rice, salsa, and grilled veggies.', 122.55, 3),
+(10, 'BBQ Ribs', 'bbq_ribs.jpg', 'Slow-cooked pork ribs glazed with BBQ sauce.', 150.00, 4),
+(11, 'Greek Salad', 'greek_salad.jpg', 'Fresh cucumbers, olives, feta cheese, and olive oil dressing.', 88.80, 4),
+(12, 'Chicken Caesar Wrap', 'chicken_caesar_wrap.jpg', 'Grilled chicken, romaine, parmesan, and Caesar dressing.', 175.00, 4),
+(13, 'Tom Yum Soup', 'tom_yum_soup.jpg', 'Spicy Thai soup with shrimp, mushrooms, and lemongrass.', 92.30, 5),
+(14, 'Beef Tacos', 'beef_tacos.jpg', 'Soft tacos filled with spiced beef, salsa, and sour cream.', 146.50, 5),
+(15, 'Chocolate Lava Cake', 'chocolate_lava_cake.jpg', 'Warm chocolate cake with a gooey center, served with ice cream.', 134.22, 5);
 
 -- DISCOUNT
 INSERT INTO Discount (id, discount_rate, start_date, end_date) VALUES

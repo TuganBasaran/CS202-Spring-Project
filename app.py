@@ -10,6 +10,8 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey123'  # Session için gerekli anahtar
 
 user = 'root'
+password = 'test123'
+database = 'cs202'
 connector = Connector(user, password, database)
 manager_service = Manager_Service(connector)
 customer_service = Customer_Service(connector)
@@ -57,7 +59,7 @@ def login():
             local_restaurants = customer_service.get_restaurants_sorted_by_rating()
 
             return render_template("Customer/customer_menu.html",
-                                    restaurants=local_restaurants,
+                                    restaurants=local_restaurants)
         else:
             return render_template("index.html", error="Invalid credentials")
 

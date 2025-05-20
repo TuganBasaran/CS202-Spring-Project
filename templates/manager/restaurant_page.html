@@ -6,11 +6,7 @@
   </head>
   <body>
     <nav style="text-align: right; margin: 10px">
-      <form
-        method="post"
-        action="{{ url_for('logout') }}"
-        style="display: inline"
-      >
+      <form method="post" action="{{ url_for('logout') }}" style="display: inline">
         <button type="submit">Log Out</button>
       </form>
     </nav>
@@ -25,13 +21,11 @@
       {% if label %}
       <p><strong>{{ label }}</strong></p>
       {% endif %}
-
       <a href="javascript:history.back()">Go Back</a>
     </section>
 
     <br />
 
-    <!-- Keywords Section - Moved to appear above Menu Item List -->
     <section id="Keywords">
       <h3>Keywords</h3>
       <ul>
@@ -39,11 +33,9 @@
         <li>{{ keyword.keyword }}</li>
         {% endfor %}
       </ul>
-      <a
-        href="{{ url_for('restaurant_keywords', restaurant_id=restaurant.restaurant_id) }}"
-        class="btn btn-primary"
-        >Manage Keywords</a
-      >
+      <a href="{{ url_for('restaurant_keywords', restaurant_id=restaurant.restaurant_id) }}" class="btn btn-primary">
+        Manage Keywords
+      </a>
     </section>
 
     <br />
@@ -51,97 +43,76 @@
     <section id="Menu Item List">
       <h2>Menu Item List</h2>
       <div style="margin-bottom: 10px">
-        <a
-          href="{{ url_for('add_menu_item_form', restaurant_id=restaurant.restaurant_id) }}"
-          class="btn"
-          >Add Menu Item</a
-        >
-        <a
-          href="{{ url_for('restaurant_discounts', restaurant_id=restaurant.restaurant_id) }}"
-          class="btn"
-          style="margin-left: 10px"
-          >Manage Discounts</a
-        >
-        <a
-          href="{{ url_for('restaurant_orders', restaurant_id=restaurant.restaurant_id) }}"
-          class="btn"
-          style="margin-left: 10px"
-          >Manage Orders</a
-        >
-        <a
-          href="{{ url_for('menu_item_stats', restaurant_id=restaurant.restaurant_id) }}"
-          class="btn"
-          style="margin-left: 10px"
-          >Sales Analytics</a
-        >
+        <a href="{{ url_for('add_menu_item_form', restaurant_id=restaurant.restaurant_id) }}" class="btn">Add Menu Item</a>
+        <a href="{{ url_for('restaurant_discounts', restaurant_id=restaurant.restaurant_id) }}" class="btn" style="margin-left: 10px">
+          Manage Discounts
+        </a>
+        <a href="{{ url_for('restaurant_orders', restaurant_id=restaurant.restaurant_id) }}" class="btn" style="margin-left: 10px">
+          Manage Orders
+        </a>
+        <a href="{{ url_for('menu_item_stats', restaurant_id=restaurant.restaurant_id) }}" class="btn" style="margin-left: 10px">
+          Sales Analytics
+        </a>
       </div>
 
       {% if menu_item_list %}
-      <ul style="list-style-type: none; padding: 0">
+      <ul style="list-style-type: none; padding: 0;">
         {% for menu in menu_item_list %}
         <li
           style="
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
           "
         >
-          <div>
+          <!-- Left: Image + Description -->
+          <div style="display: flex; align-items: center;">
             {% if menu.image %}
             <img
-              src="{{ menu.image }}"
+              src="{{ url_for('static', filename='images/' ~ menu.image) }}"
               alt="{{ menu.name }}"
-              style="max-width: 100px; max-height: 100px; margin-right: 10px"
+              style="max-width: 100px; max-height: 100px; margin-right: 15px;"
             />
             {% endif %}
-            <strong>{{ menu.name }}</strong>
-            {% if menu.has_discount %}
-            <span style="text-decoration: line-through; color: #999"
-              >{{ menu.original_price }} TL</span
-            >
-            <span style="color: #e74c3c; font-weight: bold"
-              >{{ menu.price }} TL</span
-            >
-            <span
-              style="
-                background-color: #e74c3c;
-                color: white;
-                padding: 2px 4px;
-                border-radius: 3px;
-                font-size: 0.8em;
-              "
-            >
-              %{{ menu.discount_rate }} OFF
-            </span>
-            {% else %}
-            <span>{{ menu.price }} TL</span>
-            {% endif %}
-            <br />
-            {{ menu.description }}
+            <div>
+              <strong>{{ menu.name }}</strong><br />
+              {{ menu.description }}<br />
+              {% if menu.has_discount %}
+              <span style="text-decoration: line-through; color: #999">
+                {{ menu.original_price }} TL
+              </span>
+              <span style="color: #e74c3c; font-weight: bold">
+                {{ menu.price }} TL
+              </span>
+              <span
+                style="background-color: #e74c3c; color: white; padding: 2px 4px; border-radius: 3px; font-size: 0.8em;"
+              >
+                %{{ menu.discount_rate }} OFF
+              </span>
+              {% else %}
+              <span>{{ menu.price }} TL</span>
+              {% endif %}
+            </div>
           </div>
-          <div>
+
+          <!-- Right: Edit + Delete Buttons -->
+          <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
             <form
               action="{{ url_for('delete_menu_item', restaurant_id=restaurant.restaurant_id, menu_item_id=menu.id) }}"
               method="post"
               onsubmit="return confirm('Are you sure you want to delete this menu item?');"
+              style="margin: 0;"
             >
               <button
                 type="submit"
-                style="
-                  background-color: #dc3545;
-                  color: white;
-                  border: none;
-                  padding: 5px 10px;
-                  cursor: pointer;
-                "
+                style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;"
               >
                 Delete
               </button>
             </form>
-          </div>
-          <div style="margin-top: 5px;">
             <a href="{{ url_for('edit_menu_item', restaurant_id=restaurant.restaurant_id, menu_item_id=menu.id) }}">
               <button style="background-color: #007bff; color: white; border: none; padding: 5px 10px; cursor: pointer;">
                 Edit
@@ -164,8 +135,7 @@
       <ul>
         {% for rating in ratings %}
         <li>
-          <strong>{{ rating.customer }}</strong> rated
-          <strong>{{ rating.rating }}</strong>/5<br />
+          <strong>{{ rating.customer }}</strong> rated <strong>{{ rating.rating }}</strong>/5<br />
           "{{ rating.comment }}"<br />
           <small>{{ rating.created_at }}</small><br />
           <em>Ordered items: {{ rating.menu_items }}</em>
