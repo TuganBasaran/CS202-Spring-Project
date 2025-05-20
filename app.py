@@ -126,7 +126,7 @@ def add_address():
 
     success = customer_service.add_address(user_id, address_name, address, city)
     if success:
-        return redirect(url_for('customer_menu'))  # ✅ Go to dashboard/menu after success
+        return redirect(url_for('customer_menu'))
     return "Failed to add address."
 
 @app.route('/customer/add_phone', methods=['GET'])
@@ -147,7 +147,7 @@ def add_phone():
 
     success = customer_service.add_phone_number(user_id, phone_number)
     if success:
-        return redirect(url_for('customer_menu'))  # ✅ Go to dashboard/menu after success
+        return redirect(url_for('customer_menu'))
     return "Failed to add phone number."
 
 
@@ -442,6 +442,31 @@ def customer_menu():
                            username=customer_service.user.user_name,
                            addresses=addresses,
                            phones=phone_numbers)
+
+
+@app.route('/restaurant/<int:restaurant_id>/edit_menu_item/<int:menu_item_id>', methods=['GET', 'POST'])
+def edit_menu_item(restaurant_id, menu_item_id):
+    if manager_service.manager is None:
+        return redirect(url_for('index'))
+
+    if request.method == 'GET':
+        menu_item = manager_service.get_menu_item(menu_item_id)
+        restaurant = manager_service.get_a_restaurant(restaurant_id)
+        return render_template('manager/edit_menu_item.html',
+                               menu_item=menu_item,
+                               restaurant=restaurant)
+
+    # POST: update item
+    name = request.form.get('name')
+    image = request.form.get('image')
+    description = request.form.get('description')
+    price = request.form.get('price')
+
+    success = manager_service.update_menu_item(menu_item_id, name, image, description, price)
+    if success:
+        return redirect(url_for('restaurant_page', restaurant_id=restaurant_id))
+    else:
+        return "Failed to update item", 500
 
 
 if __name__ == '__main__':  

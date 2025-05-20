@@ -606,3 +606,36 @@ class Manager_Service():
             return cart, customer
         
         return None  # No carts in this period
+
+    def update_menu_item(self, menu_item_id, name, image, description, price):
+        try:
+            query = f"""
+            UPDATE Menu_Item
+            SET name = '{name}', image = '{image}', description = '{description}', price = {price}
+            WHERE id = {menu_item_id}
+            """
+            self.connection.execute_query(query)
+            return True
+        except Exception as e:
+            print("Failed to update menu item:", e)
+            return False
+
+    def get_menu_item(self, menu_item_id):
+        try:
+            query = f"SELECT id, name, image, description, price FROM Menu_Item WHERE id = {menu_item_id};"
+            result = self.connection.execute_query(query)
+            if result and len(result) > 0:
+                row = result[0]
+                # Create a basic object/dictionary to pass to the template
+                return type("MenuItem", (), {
+                    "id": row[0],
+                    "name": row[1],
+                    "image": row[2],
+                    "description": row[3],
+                    "price": row[4]
+                })()
+            return None
+        except Exception as e:
+            print("Error fetching menu item:", e)
+            return None
+
