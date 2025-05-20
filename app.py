@@ -10,8 +10,6 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey123'  # Session için gerekli anahtar
 
 user = 'root'
-password = 'test123'
-database = 'cs202'
 connector = Connector(user, password, database)
 manager_service = Manager_Service(connector)
 customer_service = Customer_Service(connector)
@@ -492,8 +490,8 @@ def submit_review(cart_id):
     comment = request.form.get('comment')
     user_id = session.get('user_id')
 
-    cart_info = customer_service.get_open_cart_details(user_id)[0]
-    if not cart_info or int(cart_info['cart_id']) != cart_id:
+    cart_info = customer_service.get_cart_details_by_id(cart_id)
+    if not cart_info:
         return "Invalid cart", 400
 
     restaurant_id = cart_info['restaurant_id']

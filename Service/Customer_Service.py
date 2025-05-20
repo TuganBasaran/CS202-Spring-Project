@@ -376,3 +376,23 @@ class Customer_Service():
             print("Error fetching customer orders:", e)
             return []
 
+    def get_cart_details_by_id(self, cart_id):
+        try:
+            cart_query = f"SELECT id, restaurant_id FROM Cart WHERE id = {cart_id}"
+            cart_result = self.connection.execute_query(cart_query)
+            if not cart_result:
+                return None
+
+            cart_id, restaurant_id = cart_result[0]
+            restaurant_query = f"SELECT restaurant_name FROM Restaurant WHERE restaurant_id = {restaurant_id}"
+            restaurant_name = self.connection.execute_query(restaurant_query)[0][0]
+
+            return {
+                'cart_id': cart_id,
+                'restaurant_id': restaurant_id,
+                'restaurant_name': restaurant_name
+            }
+        except Exception as e:
+            print("Error fetching cart by id:", e)
+            return None
+
