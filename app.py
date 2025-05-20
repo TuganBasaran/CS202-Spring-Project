@@ -10,6 +10,9 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey123'  # Session için gerekli anahtar
 
 user = 'root'
+password = 'test123'
+database = 'cs202'
+
 connector = Connector(user, password, database)
 manager_service = Manager_Service(connector)
 customer_service = Customer_Service(connector)
@@ -453,12 +456,16 @@ def customer_menu():
         return redirect(url_for('index'))
 
     if not customer_service.user or customer_service.user.user_id != user_id:
-        # You were only setting a placeholder user here
         user_result = customer_service.select_by_id(user_id)
         username = user_result[0][1] if user_result else "Unknown"
         customer_service.user = Customer(user_id, username, "placeholder")
 
-    restaurants = customer_service.get_restaurants_sorted_by_rating()
+    search_query = request.args.get('search')
+    if search_query:
+        restaurants = customer_service.search_restaurants(user_id, search_query)
+    else:
+        restaurants = customer_service.get_restaurants_sorted_by_rating()
+
     addresses = customer_service.view_address(user_id)
     phone_numbers = customer_service.view_phone_number(user_id)
 
@@ -469,6 +476,7 @@ def customer_menu():
         addresses=addresses,
         phones=phone_numbers
     )
+
 
 @app.route('/customer/orders')
 def customer_orders():
