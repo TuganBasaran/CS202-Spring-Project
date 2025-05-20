@@ -1,150 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Restaurant Details</title>
-  </head>
-  <body>
-    <nav style="text-align: right; margin: 10px">
-      <form method="post" action="{{ url_for('logout') }}" style="display: inline">
-        <button type="submit">Log Out</button>
-      </form>
-    </nav>
+<head>
+  <meta charset="UTF-8" />
+  <title>Restaurant Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
 
-    <section>
-      <h2>{{ restaurant.restaurant_name }}</h2>
-      <p><strong>Cuisine Type:</strong> {{ restaurant.cuisine_type }}</p>
-      <p><strong>Address:</strong> {{ restaurant.address.address }}</p>
-      <p><strong>City:</strong> {{ restaurant.address.city }}</p>
-      <p><strong>Manager:</strong> {{ restaurant.manager }}</p>
-      <p><strong>Average Rating:</strong> {{ average_rating }}</p>
-      {% if label %}
-      <p><strong>{{ label }}</strong></p>
-      {% endif %}
-      <a href="javascript:history.back()">Go Back</a>
-    </section>
+    h2, h3 {
+      color: #333;
+    }
 
-    <br />
+    .section {
+      background-color: #fff;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
 
-    <section id="Keywords">
-      <h3>Keywords</h3>
-      <ul>
-        {% for keyword in keywords %}
+    .btn {
+      background-color: #007bff;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .keyword-list, .rating-list, .menu-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding: 10px 0;
+    }
+
+    .menu-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .menu-info img {
+      max-width: 100px;
+      max-height: 100px;
+      margin-right: 15px;
+      border-radius: 4px;
+    }
+
+    .rating-list li {
+      margin-bottom: 15px;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-end;
+    }
+
+    nav {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    .highlight {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+
+    .discount-tag {
+      background-color: #e74c3c;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8em;
+      margin-left: 6px;
+    }
+
+    .menu-header-actions a {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <form method="post" action="{{ url_for('logout') }}" style="display: inline;">
+      <button class="btn btn-danger" type="submit">Log Out</button>
+    </form>
+  </nav>
+
+  <div class="section">
+    <h2>{{ restaurant.restaurant_name }}</h2>
+    <p><strong>Cuisine:</strong> {{ restaurant.cuisine_type }}</p>
+    <p><strong>Address:</strong> {{ restaurant.address.address }}, {{ restaurant.address.city }}</p>
+    <p><strong>Manager:</strong> {{ restaurant.manager }}</p>
+    <p><strong>Average Rating:</strong> {{ average_rating }}/5</p>
+    {% if label %}
+      <p class="highlight"><strong>{{ label }}</strong></p>
+    {% endif %}
+    <a class="btn" href="javascript:history.back()">⬅️ Go Back</a>
+  </div>
+
+  <div class="section">
+    <h3>Keywords</h3>
+    <ul class="keyword-list">
+      {% for keyword in keywords %}
         <li>{{ keyword.keyword }}</li>
-        {% endfor %}
-      </ul>
-      <a href="{{ url_for('restaurant_keywords', restaurant_id=restaurant.restaurant_id) }}" class="btn btn-primary">
-        Manage Keywords
-      </a>
-    </section>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('restaurant_keywords', restaurant_id=restaurant.restaurant_id) }}" class="btn">
+      Manage Keywords
+    </a>
+  </div>
 
-    <br />
+  <div class="section">
+    <h3>Menu Items</h3>
+    <div class="menu-header-actions">
+      <a href="{{ url_for('add_menu_item_form', restaurant_id=restaurant.restaurant_id) }}" class="btn"> Add Menu Item</a>
+      <a href="{{ url_for('restaurant_discounts', restaurant_id=restaurant.restaurant_id) }}" class="btn"> Manage Discounts</a>
+      <a href="{{ url_for('restaurant_orders', restaurant_id=restaurant.restaurant_id) }}" class="btn"> Manage Orders</a>
+      <a href="{{ url_for('menu_item_stats', restaurant_id=restaurant.restaurant_id) }}" class="btn"> Sales Analytics</a>
+    </div>
 
-    <section id="Menu Item List">
-      <h2>Menu Item List</h2>
-      <div style="margin-bottom: 10px">
-        <a href="{{ url_for('add_menu_item_form', restaurant_id=restaurant.restaurant_id) }}" class="btn">Add Menu Item</a>
-        <a href="{{ url_for('restaurant_discounts', restaurant_id=restaurant.restaurant_id) }}" class="btn" style="margin-left: 10px">
-          Manage Discounts
-        </a>
-        <a href="{{ url_for('restaurant_orders', restaurant_id=restaurant.restaurant_id) }}" class="btn" style="margin-left: 10px">
-          Manage Orders
-        </a>
-        <a href="{{ url_for('menu_item_stats', restaurant_id=restaurant.restaurant_id) }}" class="btn" style="margin-left: 10px">
-          Sales Analytics
-        </a>
-      </div>
-
-      {% if menu_item_list %}
-      <ul style="list-style-type: none; padding: 0;">
-        {% for menu in menu_item_list %}
-        <li
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-          "
-        >
-          <!-- Left: Image + Description -->
-          <div style="display: flex; align-items: center;">
-            {% if menu.image %}
-            <img
-              src="{{ url_for('static', filename='images/' ~ menu.image) }}"
-              alt="{{ menu.name }}"
-              style="max-width: 100px; max-height: 100px; margin-right: 15px;"
-            />
-            {% endif %}
-            <div>
-              <strong>{{ menu.name }}</strong><br />
-              {{ menu.description }}<br />
-              {% if menu.has_discount %}
+    {% if menu_item_list %}
+    <ul class="menu-list">
+      {% for menu in menu_item_list %}
+      <li class="menu-item">
+        <div class="menu-info">
+          {% if menu.image %}
+            <img src="{{ url_for('static', filename='images/' ~ menu.image) }}" alt="{{ menu.name }}">
+          {% endif %}
+          <div>
+            <strong>{{ menu.name }}</strong><br />
+            {{ menu.description }}<br />
+            {% if menu.has_discount %}
               <span style="text-decoration: line-through; color: #999">
                 {{ menu.original_price }} TL
               </span>
-              <span style="color: #e74c3c; font-weight: bold">
-                {{ menu.price }} TL
-              </span>
-              <span
-                style="background-color: #e74c3c; color: white; padding: 2px 4px; border-radius: 3px; font-size: 0.8em;"
-              >
-                %{{ menu.discount_rate }} OFF
-              </span>
-              {% else %}
+              <span class="highlight">{{ menu.price }} TL</span>
+              <span class="discount-tag">%{{ menu.discount_rate }} OFF</span>
+            {% else %}
               <span>{{ menu.price }} TL</span>
-              {% endif %}
-            </div>
+            {% endif %}
           </div>
+        </div>
 
-          <!-- Right: Edit + Delete Buttons -->
-          <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
-            <form
-              action="{{ url_for('delete_menu_item', restaurant_id=restaurant.restaurant_id, menu_item_id=menu.id) }}"
-              method="post"
-              onsubmit="return confirm('Are you sure you want to delete this menu item?');"
-              style="margin: 0;"
-            >
-              <button
-                type="submit"
-                style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer;"
-              >
-                Delete
-              </button>
-            </form>
-            <a href="{{ url_for('edit_menu_item', restaurant_id=restaurant.restaurant_id, menu_item_id=menu.id) }}">
-              <button style="background-color: #007bff; color: white; border: none; padding: 5px 10px; cursor: pointer;">
-                Edit
-              </button>
-            </a>
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p>No menu items.</p>
-      {% endif %}
-    </section>
+        <div class="action-buttons">
+          <form action="{{ url_for('delete_menu_item', restaurant_id=restaurant.restaurant_id, menu_item_id=menu.id) }}"
+                method="post"
+                onsubmit="return confirm('Are you sure you want to delete this menu item?');">
+            <button type="submit" class="btn btn-danger">🗑️ Delete</button>
+          </form>
+          <a href="{{ url_for('edit_menu_item', restaurant_id=restaurant.restaurant_id, menu_item_id=menu.id) }}">
+            <button class="btn">✏️ Edit</button>
+          </a>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p>No menu items found.</p>
+    {% endif %}
+  </div>
 
-    <br />
-
-    <section id="Ratings">
-      <h2>Ratings</h2>
-      {% if ratings and ratings != -1 %}
-      <ul>
-        {% for rating in ratings %}
-        <li>
-          <strong>{{ rating.customer }}</strong> rated <strong>{{ rating.rating }}</strong>/5<br />
-          "{{ rating.comment }}"<br />
-          <small>{{ rating.created_at }}</small><br />
-          <em>Ordered items: {{ rating.menu_items }}</em>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
+  <div class="section">
+    <h3>Ratings</h3>
+    {% if ratings and ratings != -1 %}
+    <ul class="rating-list">
+      {% for rating in ratings %}
+      <li>
+        <strong>{{ rating.customer }}</strong> rated <strong>{{ rating.rating }}</strong>/5<br />
+        "{{ rating.comment }}"<br />
+        <small>{{ rating.created_at }}</small><br />
+        <em>Ordered items: {{ rating.menu_items }}</em>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
       <p>No ratings yet.</p>
-      {% endif %}
-    </section>
-  </body>
+    {% endif %}
+  </div>
+
+</body>
 </html>

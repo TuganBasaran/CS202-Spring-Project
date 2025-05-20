@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <title>Manager Dashboard</title>
     <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+      }
+      h2, h3 {
+        color: #333;
+      }
       .summary-box {
         background-color: #f8f9fa;
         border-radius: 5px;
@@ -35,6 +44,15 @@
         border-radius: 5px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
+      .restaurant-link {
+        font-size: 18px;
+        font-weight: bold;
+        color: #007bff;
+        text-decoration: none;
+      }
+      .restaurant-link:hover {
+        text-decoration: underline;
+      }
       .restaurant-stats {
         margin-top: 8px;
         display: flex;
@@ -52,14 +70,11 @@
   </head>
   <body>
     <nav style="text-align: right; margin: 10px">
-      <form
-        method="post"
-        action="{{ url_for('logout') }}"
-        style="display: inline"
-      >
+      <form method="post" action="{{ url_for('logout') }}" style="display: inline">
         <button type="submit">Log Out</button>
       </form>
     </nav>
+
     <h2>Welcome, {{ username }}!</h2>
 
     <div class="summary-box">
@@ -79,7 +94,8 @@
       {% for restaurant in restaurants %}
       <li class="restaurant-item">
         <a
-          href="{{ url_for('restaurant_page', restaurant_id=restaurant.restaurant_id) }}"
+          class="restaurant-link"
+          href="{{ url_for('manager_restaurant_page', restaurant_id=restaurant.restaurant_id) }}"
         >
           {{ restaurant.restaurant_name }} - {{ restaurant.cuisine_type }}
         </a>

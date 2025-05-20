@@ -87,7 +87,7 @@ def manager_restaurant_page(restaurant_id):
             average_rating = 0
             label = 'New'
         keywords = manager_service.get_restaurant_keywords(restaurant_id)
-        return render_template('manager/restaurant_page.html', 
+        return render_template('manager/restaurant_page.html',
                               restaurant=restaurant, 
                               menu_item_list=menu_items, 
                               ratings=ratings, 
@@ -249,7 +249,7 @@ def add_menu_item(restaurant_id):
     )
     
     # Redirect back to restaurant page
-    return redirect(url_for('restaurant_page', restaurant_id=restaurant_id))
+    return redirect(url_for('manager_restaurant_page', restaurant_id=restaurant_id))
 
 @app.route('/restaurant/<int:restaurant_id>/delete_menu_item/<int:menu_item_id>', methods=['POST'])
 def delete_menu_item(restaurant_id, menu_item_id):
@@ -264,7 +264,7 @@ def delete_menu_item(restaurant_id, menu_item_id):
         pass
     
     # Redirect back to the restaurant page
-    return redirect(url_for('restaurant_page', restaurant_id=restaurant_id))
+    return redirect(url_for('manager_restaurant_page', restaurant_id=restaurant_id))
 
 @app.route('/restaurant/<int:restaurant_id>/discounts', methods=['GET'])
 def restaurant_discounts(restaurant_id):
@@ -483,7 +483,7 @@ def edit_menu_item(restaurant_id, menu_item_id):
 
     success = manager_service.update_menu_item(menu_item_id, name, image, description, price)
     if success:
-        return redirect(url_for('restaurant_page', restaurant_id=restaurant_id))
+        return redirect(url_for('manager_restaurant_page', restaurant_id=restaurant_id))
     else:
         return "Failed to update item", 500
 
