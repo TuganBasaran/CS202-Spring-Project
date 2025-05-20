@@ -49,6 +49,24 @@ class Customer_Service():
             print("Error while creating rating:", e)
             return e
 
+    def view_address(self, user_id):
+        try:
+            query = f"SELECT address_name, address, city FROM Address WHERE user_id = {user_id};"
+            result = self.connection.execute_query(query)
+            return result
+        except Exception as e:
+            print("Error fetching address:", e)
+            return []
+
+    def view_phone_number(self, user_id):
+        try:
+            query = f"SELECT phone_number FROM Phone_Number WHERE user_id = {user_id};"
+            result = self.connection.execute_query(query)
+            return result
+        except Exception as e:
+            print("Error fetching phone number:", e)
+            return []
+
     def add_address(self, user_id, address_name, address, city):
         try:
             query = (f"INSERT INTO Address (user_id, address_name, address, city)"

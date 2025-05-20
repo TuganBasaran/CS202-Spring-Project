@@ -434,9 +434,14 @@ def customer_menu():
         customer_service.user = Customer(user_id, "Placeholder", "Placeholder")
 
     restaurants = customer_service.get_restaurants_sorted_by_rating()
+    addresses = customer_service.view_address(user_id)
+    phone_numbers = customer_service.view_phone_number(user_id)
+
     return render_template("Customer/customer_menu.html",
                            restaurants=restaurants,
-                           username=customer_service.user.user_name)
+                           username=customer_service.user.user_name,
+                           addresses=addresses,
+                           phones=phone_numbers)
 
 
 if __name__ == '__main__':  
