@@ -29,7 +29,9 @@ INSERT INTO Address (address_id, user_id, address_name, address, city) VALUES
 (2, 2, 'Spice Hub', 'Kadikoy Mah. No:25', 'Istanbul'),
 (3, 3, 'Burger Spot', 'Bornova Cad. No:15', 'Izmir'),
 (4, 1, 'Mamma Mia HQ', 'Bakirkoy Sok. No:5', 'Istanbul'),
-(5, 2, 'Wok Kitchen', 'Cankaya Sk. No:8', 'Ankara');
+(5, 2, 'Wok Kitchen', 'Cankaya Sk. No:8', 'Ankara'),
+(12, 10, 'home12', 'çekmeköy', 'Istanbul');
+
 
 -- PHONE NUMBER
 INSERT INTO Phone_Number (id, user_id, phone_number) VALUES

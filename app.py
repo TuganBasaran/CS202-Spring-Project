@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.secret_key = 'supersecretkey123'  # Session için gerekli anahtar
 
 user = 'root'
-password = 'Wthrw_<>1215@'
+password = 'test123'
 database = 'cs202'
 connector = Connector(user, password, database)
 manager_service = Manager_Service(connector)
@@ -60,6 +60,8 @@ def login():
             return render_template("Customer/customer_menu.html",
                                     restaurants=local_restaurants,
                                     username=customer_service.user.user_name)
+        else:
+            return render_template("index.html", error="Invalid credentials")
 
 
 @app.route('/restaurant/<int:restaurant_id>')

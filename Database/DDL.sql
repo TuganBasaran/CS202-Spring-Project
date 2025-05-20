@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS Cart (
     id INT PRIMARY KEY AUTO_INCREMENT,
     customer_id INT NOT NULL,
     restaurant_id INT NOT NULL,
-    status ENUM('waiting','accepted','delivered') NOT NULL,
+    status ENUM('not_sent', 'waiting','accepted','delivered') NOT NULL DEFAULT 'not_sent',
     order_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
     FOREIGN KEY (restaurant_id) REFERENCES Restaurant(restaurant_id)
