@@ -57,7 +57,14 @@
       </form>
     </nav>
     <h2>Welcome, {{ username }}!</h2>
-
+      <div style="margin-bottom: 20px;">
+        <a href="{{ url_for('add_address_form') }}">
+          <button>Add Address</button>
+        </a>
+        <a href="{{ url_for('add_phone_form') }}">
+          <button>Add Phone Number</button>
+        </a>
+      </div>
     <h3>Restaurants in Your City (Sorted by Rating):</h3>
     {% if restaurants %}
     <ul class="restaurant-list">

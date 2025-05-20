@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Address</title>
+</head>
+<body>
+  <h2>Add Address</h2>
+  <form method="POST" action="{{ url_for('add_address') }}">
+    <label>Address Name (optional):</label><br />
+    <input type="text" name="address_name" /><br /><br />
+
+    <label>Full Address:</label><br />
+    <input type="text" name="address" required /><br /><br />
+
+    <label>City:</label><br />
+    <input type="text" name="city" required /><br /><br />
+
+    <button type="submit">Add Address</button>
+  </form>
+</body>
+</html>

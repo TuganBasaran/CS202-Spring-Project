@@ -49,8 +49,7 @@ class Customer_Service():
             print("Error while creating rating:", e)
             return e
 
-    def add_address(self, address_name, address, city):
-        user_id = self.user.user_id
+    def add_address(self, user_id, address_name, address, city):
         try:
             query = (f"INSERT INTO Address (user_id, address_name, address, city)"
                      f"VALUES ({user_id}, '{address_name}', '{address}', '{city}')")
@@ -61,8 +60,7 @@ class Customer_Service():
             print("Error while adding address:", e)
             return e
 
-    def add_phone_number(self, phone_number):
-        user_id = self.user.user_id
+    def add_phone_number(self, user_id, phone_number):
         try:
             query = (f"INSERT INTO Phone_Number (user_id, phone_number)"
                      f"VALUES ({user_id}, '{phone_number}')")

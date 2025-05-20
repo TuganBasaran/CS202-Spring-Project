@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, redirect, session
 
-
+from Entity.User.Customer import Customer
 from Service.Customer_Service import Customer_Service
 from Service.Manager_Service import Manager_Service
 from Connector import Connector
@@ -55,6 +55,7 @@ def login():
         login_success = customer_service.login(username=username, password=password)
 
         if login_success:
+            session['user_id'] = customer_service.user.user_id
             local_restaurants = customer_service.get_restaurants_sorted_by_rating()
 
             return render_template("Customer/customer_menu.html",
@@ -101,6 +102,54 @@ def restaurant_page(restaurant_id):
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+from flask import Flask, render_template, url_for, request, redirect, session
+
+@app.route('/customer/add_address', methods=['GET'])
+def add_address_form():
+    if 'user_id' not in session:
+        return redirect(url_for('index'))
+    return render_template('Customer/add_address.html')
+
+@app.route('/customer/add_address', methods=['POST'])
+def add_address():
+    address_name = request.form.get('address_name')
+    address = request.form.get('address')
+    city = request.form.get('city')
+
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    if not address or not city:
+        return "Address and city are required.", 400
+
+    success = customer_service.add_address(user_id, address_name, address, city)
+    if success:
+        return redirect(url_for('customer_menu'))  # ✅ Go to dashboard/menu after success
+    return "Failed to add address."
+
+@app.route('/customer/add_phone', methods=['GET'])
+def add_phone_form():
+    if 'user_id' not in session:
+        return redirect(url_for('index'))
+    return render_template('Customer/add_phone.html')
+
+@app.route('/customer/add_phone', methods=['POST'])
+def add_phone():
+    phone_number = request.form.get('phone_number')
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    if not phone_number:
+        return "Phone number is required.", 400
+
+    success = customer_service.add_phone_number(user_id, phone_number)
+    if success:
+        return redirect(url_for('customer_menu'))  # ✅ Go to dashboard/menu after success
+    return "Failed to add phone number."
+
 
 @app.route('/restaurant/<int:restaurant_id>/keywords', methods=['GET'])
 def restaurant_keywords(restaurant_id):
@@ -373,6 +422,22 @@ def menu_item_stats(restaurant_id):
                           total_revenue=total_revenue,
                           top_customer=top_customer_dict,
                           top_cart_customer=top_cart_customer_dict)
+
+@app.route('/customer/menu', methods=['GET'])
+def customer_menu():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    # Set the user object if needed
+    if not customer_service.user or customer_service.user.user_id != user_id:
+        customer_service.user = Customer(user_id, "Placeholder", "Placeholder")
+
+    restaurants = customer_service.get_restaurants_sorted_by_rating()
+    return render_template("Customer/customer_menu.html",
+                           restaurants=restaurants,
+                           username=customer_service.user.user_name)
+
 
 if __name__ == '__main__':  
     app.run(debug=True)
