@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, request, redirect, session, flash
-
+from datetime import datetime, timedelta
 from Entity.User.Customer import Customer
 from Service.Customer_Service import Customer_Service
 from Service.Manager_Service import Manager_Service
@@ -471,6 +471,38 @@ def customer_menu():
         addresses=addresses,
         phones=phone_numbers
     )
+
+@app.route('/customer/orders')
+def customer_orders():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    orders = customer_service.get_customer_orders(user_id)
+    return render_template('Customer/customer_orders.html', orders=orders, now=datetime.now())
+
+@app.route('/customer/review/<int:cart_id>', methods=['GET'])
+def review_order_form(cart_id):
+    return render_template('Customer/review_form.html', cart_id=cart_id)
+
+
+@app.route('/customer/review/<int:cart_id>', methods=['POST'])
+def submit_review(cart_id):
+    rating = int(request.form.get('rating'))
+    comment = request.form.get('comment')
+    user_id = session.get('user_id')
+
+    cart_info = customer_service.get_open_cart_details(user_id)[0]
+    if not cart_info or int(cart_info['cart_id']) != cart_id:
+        return "Invalid cart", 400
+
+    restaurant_id = cart_info['restaurant_id']
+
+    success = customer_service.create_rating(cart_id, rating, comment, user_id, restaurant_id)
+    if success:
+        return redirect(url_for('customer_orders'))
+    return "Review failed", 500
+
 
 
 @app.route('/restaurant/<int:restaurant_id>/edit_menu_item/<int:menu_item_id>', methods=['GET', 'POST'])

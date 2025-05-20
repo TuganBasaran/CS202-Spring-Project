@@ -361,3 +361,18 @@ class Customer_Service():
             print("Error in search_restaurants:", e)
             return []
 
+
+    def get_customer_orders(self, customer_id):
+        try:
+            query = f"""
+            SELECT C.id, R.restaurant_name, C.order_time, C.status
+            FROM Cart C
+            JOIN Restaurant R ON C.restaurant_id = R.restaurant_id
+            WHERE C.customer_id = {customer_id}
+            ORDER BY C.order_time DESC
+            """
+            return self.connection.execute_query(query)
+        except Exception as e:
+            print("Error fetching customer orders:", e)
+            return []
+

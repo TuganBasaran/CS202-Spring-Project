@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Orders</title>
+</head>
+<body>
+  <h2>My Orders</h2>
+  {% if orders %}
+    <ul>
+      {% for order in orders %}
+        <li>
+          <strong>{{ order[1] }}</strong> - {{ order[2] }} - Status: {{ order[3] }}
+          {% set order_time = order[2] %}
+          {% if (now - order_time).total_seconds() < 86400 %}
+            <form method="GET" action="{{ url_for('review_order_form', cart_id=order[0]) }}" style="display: inline;">
+              <button type="submit">Review</button>
+            </form>
+          {% else %}
+            <span style="color:gray;">(Review expired)</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No orders yet.</p>
+  {% endif %}
+</body>
+</html>
