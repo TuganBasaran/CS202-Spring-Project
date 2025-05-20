@@ -572,8 +572,96 @@ def send_cart():
     else:
         return "Failed to submit cart", 500
 
+@app.route('/customer/edit_address/<int:address_id>', methods=['GET', 'POST'])
+def edit_address(address_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
 
+    addresses = customer_service.view_address(user_id)
+    address = None
+    for addr in addresses:
+        if addr[0] == address_id:
+            address = addr
+            break
 
+    if not address:
+        return "Address not found", 404
+
+    if request.method == 'POST':
+        address_name = request.form.get('address_name')
+        address_text = request.form.get('address')
+        city = request.form.get('city')
+        customer_service.update_address(address_id, address_name, address_text, city)
+        return redirect(url_for('customer_menu'))
+    return render_template('Customer/edit_address.html', address=address)
+
+@app.route('/customer/delete_address/<int:address_id>', methods=['GET', 'POST'])
+def delete_address(address_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    addresses = customer_service.view_address(user_id)
+    address = None
+    for addr in addresses:
+        if addr[0] == address_id:
+            address = addr
+            break
+
+    if not address:
+        return "Address not found", 404
+
+    if request.method == 'POST':
+        customer_service.delete_address(address_id)
+        return redirect(url_for('customer_menu'))
+
+    return render_template('Customer/delete_address.html', address=address)
+
+@app.route('/customer/edit_phone/<int:phone_id>', methods=['GET', 'POST'])
+def edit_phone(phone_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    phones = customer_service.view_phone_number(user_id)
+    phone = None
+    for ph in phones:
+        if ph[0] == phone_id:
+            phone = ph
+            break
+
+    if not phone:
+        return "Phone number not found", 404
+
+    if request.method == 'POST':
+        new_number = request.form.get('phone_number')
+        customer_service.update_phone_number(phone_id, new_number)
+        return redirect(url_for('customer_menu'))
+
+    return render_template('Customer/edit_phone.html', phone=phone)
+
+@app.route('/customer/delete_phone/<int:phone_id>', methods=['GET', 'POST'])
+def delete_phone(phone_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('index'))
+
+    phones = customer_service.view_phone_number(user_id)
+    phone = None
+    for ph in phones:
+        if ph[0] == phone_id:
+            phone = ph
+            break
+
+    if not phone:
+        return "Phone number not found", 404
+
+    if request.method == 'POST':
+        customer_service.delete_phone_number(phone_id)
+        return redirect(url_for('customer_menu'))
+
+    return render_template('Customer/delete_phone.html', phone=phone)
 
 if __name__ == '__main__':
     app.run(debug=True)

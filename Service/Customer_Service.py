@@ -60,7 +60,7 @@ class Customer_Service():
 
     def view_phone_number(self, user_id):
         try:
-            query = f"SELECT phone_number FROM Phone_Number WHERE user_id = {user_id};"
+            query = f"SELECT id, phone_number FROM Phone_Number WHERE user_id = {user_id};"
             result = self.connection.execute_query(query)
             return result
         except Exception as e:
@@ -109,15 +109,19 @@ class Customer_Service():
                 WHERE address_id = {address_id}
             """
             self.connection.execute_query(query)
+            return True
         except Exception as e:
             print("Address update failed:", e)
+            return False
 
     def delete_address(self, address_id):
         try:
             query = f"DELETE FROM Address WHERE address_id = {address_id}"
             self.connection.execute_query(query)
+            return True
         except Exception as e:
             print("Address delete failed:", e)
+            return False
 
     def add_phone_number(self, user_id, phone_number):
         try:
