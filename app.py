@@ -57,9 +57,15 @@ def login():
         if login_success:
             session['user_id'] = customer_service.user.user_id
             local_restaurants = customer_service.get_restaurants_sorted_by_rating()
+            addresses = customer_service.view_address(customer_service.user.user_id)
+            phones = customer_service.view_phone_number(customer_service.user.user_id)
 
             return render_template("Customer/customer_menu.html",
-                                    restaurants=local_restaurants)
+                                   restaurants=local_restaurants,
+                                   username=customer_service.user.user_name,
+                                   addresses=addresses,
+                                   phones=phones)
+
         else:
             return render_template("index.html", error="Invalid credentials")
 
@@ -448,19 +454,23 @@ def customer_menu():
     if not user_id:
         return redirect(url_for('index'))
 
-    # Set the user object if needed
     if not customer_service.user or customer_service.user.user_id != user_id:
-        customer_service.user = Customer(user_id, "Placeholder", "Placeholder")
+        # You were only setting a placeholder user here
+        user_result = customer_service.select_by_id(user_id)
+        username = user_result[0][1] if user_result else "Unknown"
+        customer_service.user = Customer(user_id, username, "placeholder")
 
     restaurants = customer_service.get_restaurants_sorted_by_rating()
     addresses = customer_service.view_address(user_id)
     phone_numbers = customer_service.view_phone_number(user_id)
 
-    return render_template("Customer/customer_menu.html",
-                           restaurants=restaurants,
-                           username=customer_service.user.user_name,
-                           addresses=addresses,
-                           phones=phone_numbers)
+    return render_template(
+        "Customer/customer_menu.html",
+        restaurants=restaurants,
+        username=customer_service.user.user_name,
+        addresses=addresses,
+        phones=phone_numbers
+    )
 
 
 @app.route('/restaurant/<int:restaurant_id>/edit_menu_item/<int:menu_item_id>', methods=['GET', 'POST'])

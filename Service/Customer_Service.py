@@ -51,7 +51,7 @@ class Customer_Service():
 
     def view_address(self, user_id):
         try:
-            query = f"SELECT address_name, address, city FROM Address WHERE user_id = {user_id};"
+            query = f"SELECT address_id, address_name, address, city FROM Address WHERE user_id = {user_id};"
             result = self.connection.execute_query(query)
             return result
         except Exception as e:
@@ -67,6 +67,27 @@ class Customer_Service():
             print("Error fetching phone number:", e)
             return []
 
+    def delete_address(self, address_id):
+        try:
+            query = f"DELETE FROM Address WHERE address_id = {address_id}"
+            self.connection.execute_query(query)
+        except Exception as e:
+            print("Error deleting address:", e)
+
+    def update_phone_number(self, phone_id, new_number):
+        try:
+            query = f"UPDATE Phone_Number SET phone_number = '{new_number}' WHERE id = {phone_id}"
+            self.connection.execute_query(query)
+        except Exception as e:
+            print("Phone update failed:", e)
+
+    def delete_phone_number(self, phone_id):
+        try:
+            query = f"DELETE FROM Phone_Number WHERE id = {phone_id}"
+            self.connection.execute_query(query)
+        except Exception as e:
+            print("Phone delete failed:", e)
+
     def add_address(self, user_id, address_name, address, city):
         try:
             query = (f"INSERT INTO Address (user_id, address_name, address, city)"
@@ -76,7 +97,27 @@ class Customer_Service():
             return True
         except Exception as e:
             print("Error while adding address:", e)
+
+
             return e
+
+    def update_address(self, address_id, name, address, city):
+        try:
+            query = f"""
+                UPDATE Address
+                SET address_name = '{name}', address = '{address}', city = '{city}'
+                WHERE address_id = {address_id}
+            """
+            self.connection.execute_query(query)
+        except Exception as e:
+            print("Address update failed:", e)
+
+    def delete_address(self, address_id):
+        try:
+            query = f"DELETE FROM Address WHERE address_id = {address_id}"
+            self.connection.execute_query(query)
+        except Exception as e:
+            print("Address delete failed:", e)
 
     def add_phone_number(self, user_id, phone_number):
         try:
@@ -292,4 +333,31 @@ class Customer_Service():
         except Exception as e:
             print("Error submitting cart:", e)
             return False
+
+    def search_restaurants(self, customer_id, search_query):
+        try:
+            query = f"""
+                SELECT DISTINCT R.restaurant_id, R.restaurant_name, A.city,
+                    COALESCE(AVG(RT.rating), 0) AS average_rating
+                FROM Customer C
+                JOIN Address AC ON C.customer_id = AC.user_id
+                JOIN Restaurant R ON R.address_id IN (
+                    SELECT address_id FROM Address WHERE city = AC.city
+                )
+                JOIN Address A ON R.address_id = A.address_id
+                LEFT JOIN Rating RT ON R.restaurant_id = RT.restaurant_id
+                LEFT JOIN Restaurant_Keyword RK ON R.restaurant_id = RK.restaurant_id
+                LEFT JOIN Keyword K ON RK.keyword_id = K.keyword_id
+                WHERE C.customer_id = {customer_id}
+                  AND (
+                    R.restaurant_name LIKE '%{search_query}%'
+                    OR K.keyword LIKE '%{search_query}%'
+                  )
+                GROUP BY R.restaurant_id, R.restaurant_name, A.city
+                ORDER BY average_rating DESC
+            """
+            return self.connection.execute_query(query)
+        except Exception as e:
+            print("Error in search_restaurants:", e)
+            return []
 
