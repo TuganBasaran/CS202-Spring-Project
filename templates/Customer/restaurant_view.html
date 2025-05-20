@@ -47,5 +47,31 @@
 </div>
 {% endfor %}
 
+<div style="text-align: center; margin-top: 30px;">
+  <a href="{{ url_for('customer_menu') }}">
+    <button style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+       Go Back
+    </button>
+  </a>
+</div>
+
+<hr style="margin-top: 40px;">
+
+<h2>Customer Ratings & Comments</h2>
+
+{% if ratings and ratings|length > 0 %}
+  <div style="margin-top: 20px;">
+    {% for rating in ratings %}
+      <div style="background: #fff; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <p><strong>Rating:</strong> {{ rating[0] }}/5</p>
+        <p><strong>Comment:</strong> {{ rating[1] if rating[1] else 'No comment.' }}</p>
+        <p style="font-size: 12px; color: #888;"><em>{{ rating[2] }}</em></p>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No ratings yet.</p>
+{% endif %}
+
 </body>
 </html>
