@@ -1,56 +1,56 @@
-# CS202 Restoran Yönetim Sistemi
+# CS202 Restaurant Management System
 
-## İçindekiler
+## Table of Contents
 
-- [Giriş](#giriş)
-- [Proje Genel Bakış](#proje-genel-bakış)
-- [Teknoloji Yığını](#teknoloji-yığını)
-- [Proje Yapısı](#proje-yapısı)
-- [Veritabanı Tasarımı](#veritabanı-tasarımı)
-- [Backend: Entity Sınıfları](#backend-entity-sınıfları)
-- [Backend: Service Sınıfları](#backend-service-sınıfları)
-- [Frontend: HTML Şablonları](#frontend-html-şablonları)
-- [Projeyi Çalıştırma](#projeyi-çalıştırma)
-- [Müşteri Tarafını Nasıl Geliştirirsiniz (Adım Adım)](#müşteri-tarafını-nasıl-geliştirirsiniz-adım-adım)
-- [Örnek Müşteri Özellikleri](#örnek-müşteri-özellikleri)
-- [Yeni Başlayanlar İçin İpuçları](#yeni-başlayanlar-için-ipuçları)
-
----
-
-## Giriş
-
-Bu proje, restoran yöneticileri ve müşteriler için tam kapsamlı bir restoran yönetim ve yemek sipariş sistemidir. Yönetici tarafı tamamen uygulanmıştır; bu rehber, kod tabanını anlamanızı ve Python ile Flask'a yeni olsanız bile müşteri tarafını nasıl geliştireceğinizi öğretir.
+- [Introduction](#introduction)
+- [Project Overview](#project-overview)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Database Design](#database-design)
+- [Backend: Entity Classes](#backend-entity-classes)
+- [Backend: Service Classes](#backend-service-classes)
+- [Frontend: HTML Templates](#frontend-html-templates)
+- [Running the Project](#running-the-project)
+- [How to Develop the Customer Side (Step by Step)](#how-to-develop-the-customer-side-step-by-step)
+- [Example Customer Features](#example-customer-features)
+- [Tips for Beginners](#tips-for-beginners)
 
 ---
 
-## Proje Genel Bakış
+## Introduction
 
-- **Yöneticiler:**
-  - Restoran, menü ve indirim ekleyip yönetebilir
-  - Siparişleri görebilir ve işleyebilir
-  - Analitikleri görebilir (satışlar, en iyi müşteriler vb.)
-- **Müşteriler** (uygulanacak):
-  - Restoranları ve menüleri inceleyebilir
-  - Sipariş verebilir ve sipariş geçmişini görebilir
-  - Restoranları puanlayabilir
+This project is a comprehensive restaurant management and food ordering system for restaurant managers and customers. The manager side is fully implemented; this guide will help you understand the codebase and learn how to develop the customer side, even if you are new to Python and Flask.
 
 ---
 
-## Teknoloji Yığını
+## Project Overview
+
+- **Managers:**
+  - Can add and manage restaurants, menus, and discounts
+  - Can view and process orders
+  - Can view analytics (sales, top customers, etc.)
+- **Customers** (to be implemented):
+  - Can browse restaurants and menus
+  - Can place orders and view order history
+  - Can rate restaurants
+
+---
+
+## Technology Stack
 
 - **Backend:** Python 3, Flask
-- **Frontend:** HTML, CSS, Jinja2 (Flask'ın şablon motoru)
-- **Veritabanı:** MySQL
+- **Frontend:** HTML, CSS, Jinja2 (Flask's template engine)
+- **Database:** MySQL
 
 ---
 
-## Proje Yapısı
+## Project Structure
 
 ```
 CS202-Spring-Project/
-├── app.py                  # Ana Flask uygulaması (routelar, başlatma)
-├── Connector.py            # Veritabanı bağlantı yardımcı sınıfı
-├── Entity/                 # Veri modeli sınıfları (Python)
+├── app.py                  # Main Flask application (routes, initialization)
+├── Connector.py            # Database connection helper class
+├── Entity/                 # Data model classes (Python)
 │   ├── Address.py
 │   ├── Cart.py
 │   ├── Discount.py
@@ -62,10 +62,10 @@ CS202-Spring-Project/
 │       ├── Customer.py
 │       ├── Restaurant_Manager.py
 │       └── User.py
-├── Service/                # İş mantığı sınıfları
+├── Service/                # Business logic classes
 │   ├── Customer_Service.py
 │   └── Manager_Service.py
-├── templates/              # HTML şablonları (Jinja2)
+├── templates/              # HTML templates (Jinja2)
 │   ├── index.html
 │   └── manager/
 │       ├── add_discount.html
@@ -76,36 +76,36 @@ CS202-Spring-Project/
 │       ├── orders.html
 │       ├── restaurant_keywords.html
 │       └── restaurant_page.html
-├── Database/DDL.sql        # Veritabanı şeması
-├── Database/DML.sql        # Örnek veri
-└── requirements.txt        # Python bağımlılıkları
+├── Database/DDL.sql        # Database schema
+├── Database/DML.sql        # Sample data
+└── requirements.txt        # Python dependencies
 ```
 
 ---
 
-## Veritabanı Tasarımı
+## Database Design
 
-- **User**: Tüm kullanıcılar (yöneticiler ve müşteriler)
-- **Restaurant_Manager**: Yöneticiler (User'dan türetilir)
-- **Customer**: Müşteriler (User'dan türetilir)
-- **Restaurant**: Restoran bilgisi
-- **Menu_Item**: Her restoranın menü öğeleri
-- **Cart**: Siparişler (her müşteri için bir sipariş)
-- **Contains**: Her sepetin içindeki ürünler
-- **Discount**: İndirim kampanyaları
-- **Has_Discount**: Hangi menüde hangi indirim var
-- **Rating**: Müşteri geri bildirimi
-- **Keyword**: Restoran etiketleri
-- **Restaurant_Keyword**: Hangi restoran hangi etikete sahip
-- **Address**: Adres bilgisi
+- **User**: All users (managers and customers)
+- **Restaurant_Manager**: Managers (derived from User)
+- **Customer**: Customers (derived from User)
+- **Restaurant**: Restaurant information
+- **Menu_Item**: Menu items for each restaurant
+- **Cart**: Orders (one order per customer)
+- **Contains**: Items in each cart
+- **Discount**: Discount campaigns
+- **Has_Discount**: Which menu has which discount
+- **Rating**: Customer feedback
+- **Keyword**: Restaurant tags
+- **Restaurant_Keyword**: Which restaurant has which tag
+- **Address**: Address information
 
 ---
 
-## Backend: Entity Sınıfları
+## Backend: Entity Classes
 
-Bunlar, veritabanı tablolarını temsil eden Python sınıflarıdır. `Entity/` klasöründe bulunurlar.
+These are Python classes that represent database tables. They are located in the `Entity/` folder.
 
-### Örnek: `Menu_Item.py`
+### Example: `Menu_Item.py`
 
 ```python
 class Menu_Item():
@@ -121,9 +121,9 @@ class Menu_Item():
         self.original_price = price
 ```
 
-- **İpucu:** Tüm entity sınıfları, veriler için basit konteynerlerdir. Müşteri tarafı için ihtiyaç duyarsanız daha fazla özellik ekleyebilirsiniz.
+- **Tip:** All entity classes are simple containers for data. You can add more properties if needed for the customer side.
 
-### Örnek: `Cart.py`
+### Example: `Cart.py`
 
 ```python
 class Cart:
@@ -140,38 +140,38 @@ class Cart:
 
 ---
 
-## Backend: Service Sınıfları
+## Backend: Service Classes
 
-Service sınıfları, iş mantığını içerir. İşlem yapmak için entity sınıflarını ve veritabanı bağlantısını kullanırlar.
+Service classes contain business logic. They use entity classes and database connections to perform operations.
 
-### Örnek: `Manager_Service.py`
+### Example: `Manager_Service.py`
 
-- Tüm yönetici işlemlerini (menü öğesi ekleme, siparişleri işleme, analitikler vb.) yönetir.
-- Örnek metot:
+- Manages all manager operations (adding menu items, processing orders, analytics, etc.).
+- Example method:
 
 ```python
 def get_restaurant_menu_items_with_discounts(self, restaurant_id):
-    # İlgili indirim bilgileriyle birlikte bir restoran için menü öğelerinin listesini döndürür
+    # Returns a list of menu items for a restaurant with relevant discount information
 ```
 
-### Örnek: `Customer_Service.py` (uygulamanız için)
+### Example: `Customer_Service.py` (for your implementation)
 
-- Tüm müşteri işlemlerini (göz atma, sipariş verme, puanlama vb.) yönetir.
-- **İpucu:** Tüm veri nesneleri için entity sınıflarını kullanın.
-- Örnek metot:
+- Manages all customer operations (browsing, ordering, rating, etc.).
+- **Tip:** Use entity classes for all data objects.
+- Example method:
 
 ```python
 def get_all_restaurants(self):
-    # Restaurant nesnelerinin bir listesini döndürür
+    # Returns a list of Restaurant objects
 ```
 
 ---
 
-## Frontend: HTML Şablonları
+## Frontend: HTML Templates
 
-Şablonlar `templates/` klasöründedir. Python'dan veri eklemek için Jinja2 sözdizimini (küçük parantezler) kullanırlar.
+Templates are in the `templates/` folder. They use Jinja2 syntax (curly braces) to insert data from Python.
 
-### Örnek: `manager/restaurant_page.html`
+### Example: `manager/restaurant_page.html`
 
 ```html
 <ul>
@@ -194,100 +194,100 @@ def get_all_restaurants(self):
 </ul>
 ```
 
-- **İpucu:** Bu şablonları müşteri tarafı için kopyalayıp uyarlayabilirsiniz.
+- **Tip:** You can copy and adapt these templates for the customer side.
 
 ---
 
-## Projeyi Çalıştırma
+## Running the Project
 
-1. **Python 3'ü yükleyin** (henüz yüklemediyseniz)
-2. **MySQL'i yükleyin** ve veritabanını `Database/DDL.sql` ile oluşturun ve `Database/DML.sql` ile doldurun
-3. **Bağımlılıkları yükleyin:**
+1. **Install Python 3** (if you haven't already)
+2. **Install MySQL** and create the database with `Database/DDL.sql` and populate it with `Database/DML.sql`
+3. **Install dependencies:**
    ```sh
    pip install -r requirements.txt
    ```
-4. **Uygulamayı başlatın:**
+4. **Start the application:**
    ```sh
    python app.py
    ```
-5. **Tarayıcınızı açın:** [http://localhost:5000](http://localhost:5000) adresine gidin
+5. **Open your browser:** Go to [http://localhost:5000](http://localhost:5000)
 
 ---
 
-## Müşteri Tarafını Nasıl Geliştirirsiniz (Adım Adım)
+## How to Develop the Customer Side (Step by Step)
 
-### 1. Entity Sınıflarını Anlayın
+### 1. Understand the Entity Classes
 
-- İhtiyacınız olan tüm veriler (restoranlar, menü öğeleri, sepetler vb.), `Entity/` içinde Python sınıfları olarak temsil edilmektedir.
-- Örnek: Bir restoranın menüsünü göstermek için `Menu_Item` sınıfını kullanın.
+- All the data you need (restaurants, menu items, carts, etc.) is represented as Python classes in `Entity/`.
+- Example: Use the `Menu_Item` class to display a restaurant's menu.
 
-### 2. Bir Müşteri Servis Sınıfı Oluşturun
+### 2. Create a Customer Service Class
 
-- `Service/Customer_Service.py` içinde bir `Customer_Service` sınıfı oluşturun.
-- Veritabanı bağlantısını kullanarak veri alın ve entity nesneleri olarak döndürün.
-- Örnek metotlar:
-  - `get_all_restaurants()` → `Restaurant` nesnelerinin listesini döndürür
-  - `get_restaurant_menu(restaurant_id)` → `Menu_Item` nesnelerinin listesini döndürür
-  - `add_to_cart(cart_id, menu_item_id, quantity)` → sepete ürün ekler
-  - `submit_order(cart_id)` → siparişi tamamlar
+- Create a `Customer_Service` class in `Service/Customer_Service.py`.
+- Fetch data using the database connection and return them as entity objects.
+- Example methods:
+  - `get_all_restaurants()` → returns a list of `Restaurant` objects
+  - `get_restaurant_menu(restaurant_id)` → returns a list of `Menu_Item` objects
+  - `add_to_cart(cart_id, menu_item_id, quantity)` → adds an item to the cart
+  - `submit_order(cart_id)` → completes the order
 
-### 3. `app.py` Dosyasına Müşteri Routelarını Ekleyin
+### 3. Add Customer Routes to `app.py`
 
-- Müşteri sayfaları için Flask routelarını ekleyin:
-  - `/customer/restaurants` → tüm restoranları göster
-  - `/customer/restaurant/<id>` → menüyü göster ve sipariş vermeye izin ver
-  - `/customer/cart` → sepeti göster ve güncelle
-  - `/customer/orders` → sipariş geçmişini göster
-  - `/customer/add_rating/<restaurant_id>/<cart_id>` → bir restoranı puanla
+- Add Flask routes for customer pages:
+  - `/customer/restaurants` → show all restaurants
+  - `/customer/restaurant/<id>` → show menu and allow ordering
+  - `/customer/cart` → show and update cart
+  - `/customer/orders` → show order history
+  - `/customer/add_rating/<restaurant_id>/<cart_id>` → rate a restaurant
 
-### 4. Müşteri HTML Şablonlarını Oluşturun
+### 4. Create Customer HTML Templates
 
-- Yönetici şablonlarını kopyalayın ve müşteri tarafı için uyarlayın.
-- Örnek: `templates/customer/restaurants.html`, `templates/customer/cart.html`, vb.
-- Verileri döngüyle gösterip tarayıcıda görüntülemek için Jinja2 kullanın.
+- Copy the manager templates and adapt them for the customer side.
+- Example: `templates/customer/restaurants.html`, `templates/customer/cart.html`, etc.
+- Use Jinja2 to loop through data and display it in the browser.
 
-### 5. Servisinizde Entity Sınıflarını Kullanın
+### 5. Use Entity Classes in Your Service
 
-- Veritabanından veri alırken her zaman entity nesneleri oluşturun ve döndürün (örneğin, `Restaurant`, `Menu_Item`, `Cart`).
-- Bir dizi öğe depolamanız gerekiyorsa (örneğin, bir sepet için), Python'un `set` türünü kullanabilirsiniz.
+- Always create and return entity objects (e.g., `Restaurant`, `Menu_Item`, `Cart`) when fetching data from the database.
+- If you need to store a collection of items (e.g., for a cart), you can use Python's `set` type.
 
-### 6. Özelliklerinizi Test Edin
+### 6. Test Your Features
 
-- Eklediğiniz tüm müşteri özelliklerini test etmek için tarayıcıyı kullanın.
-- Gerekirse Flask routelarınızdaki hata ayıklama bilgilerini yazdırın.
-
----
-
-## Örnek Müşteri Özellikleri
-
-- **Restoranları Göz At:** Tüm restoranları mutfak, şehir gibi filtrelerle listele
-- **Menüyü Görüntüle:** Menü öğelerini, fiyatları ve indirimleri göster
-- **Sepete Ekle:** Menü öğelerini bir sepete (sipariş) ekle
-- **Ödeme:** Sepeti bir sipariş olarak gönder
-- **Sipariş Geçmişi:** Tüm önceki siparişleri göster
-- **Restoranı Puanla:** Bir sipariş sonrası, müşterinin restoranı puanlamasına ve yorum yapmasına izin ver
+- Use the browser to test all the customer features you add.
+- Print debugging information in your Flask routes if needed.
 
 ---
 
-## Yeni Başlayanlar İçin İpuçları
+## Example Customer Features
 
-- **Entity sınıfları** sadece verileri tutmak için Python sınıflarıdır. İhtiyacınız varsa daha fazla özellik ekleyebilirsiniz.
-- **Service sınıfları** işi yapar: veritabanıyla konuşurlar ve entity nesnelerini döndürürler.
-- **HTML şablonları** verileri Python'dan göstermek için süslü parantezler (`{{ }}`) kullanır.
-- **Takıldığınızda:**
-  - Python kodunuzda hata ayıklama bilgilerini yazdırın
-  - Flask ve Jinja2 belgelerine bakın
-  - Çalışan örnekler için yönetici tarafına bakın
+- **Browse Restaurants:** List all restaurants with filters like cuisine, city
+- **View Menu:** Show menu items, prices, and discounts
+- **Add to Cart:** Add menu items to a cart (order)
+- **Checkout:** Submit the cart as an order
+- **Order History:** Show all previous orders
+- **Rate Restaurant:** After an order, allow the customer to rate and comment on the restaurant
 
 ---
 
-## Adım Adım: Bir Service Methodu, Route ve Template Nasıl Çalışır?
+## Tips for Beginners
 
-Bu bölümde, bir örnek üzerinden **Manager_Service** içindeki bir methodun nasıl çalıştığını, bu methodun `app.py`'da nasıl kullanıldığını ve HTML template'te nasıl gösterildiğini adım adım açıklayacağız. Aynı mantıkla customer tarafını da kolayca geliştirebilirsiniz.
+- **Entity classes** are just Python classes to hold data. You can add more properties if needed.
+- **Service classes** do the work: they talk to the database and return entity objects.
+- **HTML templates** use curly braces (`{{ }}`) to display data from Python.
+- **When you're stuck:**
+  - Print debugging information in your Python code
+  - Look at Flask and Jinja2 documentation
+  - Look at the manager side for working examples
 
-### 1. Entity Katmanı (Model)
+---
 
-Örneğin bir menü öğesi (Menu_Item) için:
+## Step by Step: How a Service Method, Route, and Template Work
+
+In this section, we will explain step by step how a method in **Manager_Service** works, how this method is used in `app.py`, and how it is displayed in the HTML template. You can easily develop the customer side with the same logic.
+
+### 1. Entity Layer (Model)
+
+For example, for a menu item (Menu_Item):
 
 ```python
 # Entity/Menu_Item.py
@@ -305,11 +305,11 @@ class Menu_Item():
         self.original_price = price
 ```
 
-- **Amaç:** Veritabanındaki Menu_Item tablosunun Python karşılığıdır. Tüm menü öğesi verileri bu class ile tutulur.
+- **Purpose:** This is the Python equivalent of the Menu_Item table in the database. All menu item data is stored with this class.
 
-### 2. Service Katmanı (İş Mantığı)
+### 2. Service Layer (Business Logic)
 
-Örneğin, bir restoranın menü öğelerini ve indirimlerini getiren method:
+For example, the method that fetches menu items and discounts for a restaurant:
 
 ```python
 # Service/Manager_Service.py
@@ -344,15 +344,15 @@ def get_restaurant_menu_items_with_discounts(self, restaurant_id):
     return menu_items
 ```
 
-- **Amaç:**
-  - SQL ile veritabanından menü öğelerini ve varsa indirim bilgilerini çeker.
-  - Her satır için bir `Menu_Item` nesnesi oluşturur.
-  - İndirim varsa, ilgili alanları doldurur.
-  - Sonuç olarak bir `Menu_Item` listesi döner.
+- **Purpose:**
+  - Fetches menu items and discount information (if any) from the database using SQL.
+  - Creates a `Menu_Item` object for each row.
+  - If there is a discount, it fills the relevant fields.
+  - Returns a list of `Menu_Item` objects.
 
 ### 3. Route (app.py)
 
-Bu methodu bir web sayfasında göstermek için bir Flask route'u tanımlanır:
+A Flask route is defined to display this method on a web page:
 
 ```python
 # app.py
@@ -368,17 +368,17 @@ def restaurant_page(restaurant_id):
                               restaurant=restaurant,
                               menu_item_list=menu_items)
     else:
-        return "Restoran bulunamadı", 404
+        return "Restaurant not found", 404
 ```
 
-- **Amaç:**
-  - URL'den restaurant_id alır.
-  - Service katmanından menü ve restoran bilgilerini çeker.
-  - Sonucu HTML template'e yollar.
+- **Purpose:**
+  - Gets the restaurant_id from the URL.
+  - Fetches menu and restaurant information from the Service layer.
+  - Passes the result to the HTML template.
 
 ### 4. Template (HTML)
 
-Son olarak, bu veriler HTML'de gösterilir:
+Finally, this data is displayed in HTML:
 
 ```html
 <!-- templates/manager/restaurant_page.html -->
@@ -402,9 +402,9 @@ Son olarak, bu veriler HTML'de gösterilir:
 </ul>
 ```
 
-- **Amaç:**
-  - Python'dan gelen menü listesini döngüyle ekrana basar.
-  - Eğer indirim varsa hem orijinal hem indirimli fiyatı gösterir.
+- **Purpose:**
+  - Loops through and displays the menu list from Python.
+  - If there is a discount, it shows both the original and discounted price.
 
 ---
 
@@ -586,10 +586,10 @@ The template (in `templates/manager/restaurant_page.html`) uses Jinja2 to loop o
 
 ---
 
-## Notlar ve İpuçları (Türkçe)
+## Notes and Tips
 
-- Service methodları her zaman Entity döndürmeli, böylece template ve diğer methodlarda kolayca kullanılabilir.
-- Connector class'ı ile SQL sorgularını çalıştır, sonucu Entity'ye aktar.
-- Route'ta Service methodunu çağır, sonucu template'e gönder.
-- Template'te Jinja2 ile veriyi döngüyle göster.
-- Manager tarafındaki örnekleri inceleyerek customer tarafını kolayca yazabilirsin.
+- Service methods should always return Entities, so they can be easily used in templates and other methods.
+- Run SQL queries with the Connector class and transfer the results to Entities.
+- Call the Service method in the Route and send the result to the template.
+- Display data with loops in the template using Jinja2.
+- You can easily write the customer side by examining examples from the manager side.
